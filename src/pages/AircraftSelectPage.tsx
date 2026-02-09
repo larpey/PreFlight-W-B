@@ -7,14 +7,25 @@ import { Disclaimer } from '../components/common/Disclaimer';
 
 interface AircraftSelectPageProps {
   onSelect: (aircraft: Aircraft) => void;
+  onHome?: () => void;
 }
 
-export function AircraftSelectPage({ onSelect }: AircraftSelectPageProps) {
+export function AircraftSelectPage({ onSelect, onHome }: AircraftSelectPageProps) {
   const [search, setSearch] = useState('');
+
+  const homeButton = onHome ? (
+    <button
+      onClick={onHome}
+      className="text-ios-blue text-[15px] min-w-[44px] min-h-[44px] flex items-center justify-center active:opacity-60"
+      aria-label="Home"
+    >
+      ⌂
+    </button>
+  ) : undefined;
 
   return (
     <div className="flex flex-col min-h-screen">
-      <NavBar title="PreFlight W&B" />
+      <NavBar title="PreFlight W&B" rightAction={homeButton} />
 
       {/* Search bar */}
       <div className="px-4 py-3">
