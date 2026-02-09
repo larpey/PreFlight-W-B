@@ -111,7 +111,11 @@ function HorizonLine() {
 
 export function LandingPage({ onEnter }: LandingPageProps) {
   return (
-    <div className="landing-page">
+    <motion.div
+      className="landing-page"
+      exit={{ opacity: 0, scale: 1.02 }}
+      transition={{ duration: 0.3, ease }}
+    >
       {/* Background grid */}
       <div className="landing-grid" />
 
@@ -207,6 +211,6 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           Not for flight planning. Always verify with your aircraft's actual W&B records.
         </motion.p>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
