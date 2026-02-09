@@ -64,6 +64,8 @@ export function CGEnvelopeChart({ aircraft, result }: CGEnvelopeChartProps) {
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         className="w-full"
         style={{ touchAction: 'none' }}
+        role="img"
+        aria-label={`CG envelope chart showing current loading at ${result.totalWeight.toFixed(0)} lbs and CG ${result.cg.toFixed(1)} inches. ${isInside ? 'Within' : 'Outside'} approved envelope.`}
       >
         {/* Grid lines */}
         {cgTicks.map(cg => (
