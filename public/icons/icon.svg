@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#007AFF"/>
+  <g transform="translate(256,256)">
+    <!-- Scale/balance icon -->
+    <line x1="0" y1="-120" x2="0" y2="80" stroke="white" stroke-width="16" stroke-linecap="round"/>
+    <line x1="-120" y1="-80" x2="120" y2="-80" stroke="white" stroke-width="14" stroke-linecap="round"/>
+    <!-- Left pan -->
+    <line x1="-120" y1="-80" x2="-100" y2="20" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="-120" y1="-80" x2="-140" y2="20" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <path d="M-155,20 Q-120,60 -85,20" fill="none" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <!-- Right pan -->
+    <line x1="120" y1="-80" x2="100" y2="20" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="120" y1="-80" x2="140" y2="20" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <path d="M85,20 Q120,60 155,20" fill="none" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <!-- Base -->
+    <polygon points="-40,80 40,80 30,100 -30,100" fill="white"/>
+    <rect x="-50" y="100" width="100" height="14" rx="7" fill="white"/>
+    <!-- Small airplane silhouette at top -->
+    <path d="M0,-140 L-6,-130 L-30,-120 L-6,-122 L-4,-105 L-12,-100 L-4,-102 L0,-95 L4,-102 L12,-100 L4,-105 L6,-122 L30,-120 L6,-130 Z" fill="white" opacity="0.9"/>
+  </g>
+</svg>
