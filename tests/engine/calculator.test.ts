@@ -171,10 +171,12 @@ describe('calculateWeightAndBalance - Navajo Chieftain', () => {
     });
 
     expect(result.totalWeight).toBe(4319);
+    expect(result.cg).toBeCloseTo(132.0, 1);
     expect(result.isWithinWeightLimit).toBe(true);
+    expect(result.isWithinCGEnvelope).toBe(true);
   });
 
-  it('handles both fuel tank types', () => {
+  it('handles both fuel tank types with typical loading', () => {
     const result = calculateWeightAndBalance(navajoChieftain, {
       aircraftId: navajoChieftain.id,
       stationLoads: [
@@ -182,19 +184,48 @@ describe('calculateWeightAndBalance - Navajo Chieftain', () => {
         { stationId: 'row-2', weight: 340 },
         { stationId: 'row-3', weight: 0 },
         { stationId: 'row-4', weight: 0 },
-        { stationId: 'row-5', weight: 0 },
-        { stationId: 'fwd-baggage', weight: 100 },
+        { stationId: 'nose-baggage', weight: 100 },
+        { stationId: 'nacelle-lockers', weight: 0 },
         { stationId: 'aft-baggage', weight: 50 },
       ],
       fuelLoads: [
-        { tankId: 'main-fuel', gallons: 192 },
-        { tankId: 'nacelle-fuel', gallons: 54 },
+        { tankId: 'inboard-fuel', gallons: 112 },
+        { tankId: 'outboard-fuel', gallons: 70 },
       ],
     });
 
-    // Weight: 4319 + 360 + 340 + 100 + 50 + 1152 + 324 = 6645
-    expect(result.totalWeight).toBe(6645);
+    // Weight: 4319 + 360 + 340 + 100 + 50 + 672 + 420 = 6261
+    // Moment: 4319*132 + 360*95 + 340*131 + 100*19 + 50*255 + 672*126.8 + 420*148
+    //       = 570108 + 34200 + 44540 + 1900 + 12750 + 85209.6 + 62160 = 810867.6
+    // CG: 810867.6 / 6261 = 129.51
+    expect(result.totalWeight).toBe(6261);
+    expect(result.cg).toBeCloseTo(129.51, 0);
     expect(result.isWithinWeightLimit).toBe(true);
+    expect(result.isWithinCGEnvelope).toBe(true);
     expect(result.fuelDetails).toHaveLength(2);
+  });
+
+  it('detects over max gross weight', () => {
+    const result = calculateWeightAndBalance(navajoChieftain, {
+      aircraftId: navajoChieftain.id,
+      stationLoads: [
+        { stationId: 'pilot-copilot', weight: 400 },
+        { stationId: 'row-2', weight: 400 },
+        { stationId: 'row-3', weight: 400 },
+        { stationId: 'row-4', weight: 400 },
+        { stationId: 'nose-baggage', weight: 200 },
+        { stationId: 'nacelle-lockers', weight: 300 },
+        { stationId: 'aft-baggage', weight: 200 },
+      ],
+      fuelLoads: [
+        { tankId: 'inboard-fuel', gallons: 112 },
+        { tankId: 'outboard-fuel', gallons: 70 },
+      ],
+    });
+
+    // Weight: 4319 + 400+400+400+400+200+300+200 + 672+420 = 7711
+    expect(result.totalWeight).toBe(7711);
+    expect(result.isWithinWeightLimit).toBe(false);
+    expect(result.warnings.some(w => w.code === 'OVER_MAX_GROSS')).toBe(true);
   });
 });
