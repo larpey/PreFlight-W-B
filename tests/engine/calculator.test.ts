@@ -162,7 +162,7 @@ describe('calculateWeightAndBalance - Cherokee Six', () => {
   });
 });
 
-describe('calculateWeightAndBalance - Navajo Chieftain', () => {
+describe('calculateWeightAndBalance - Navajo Chieftain N800LP', () => {
   it('computes correctly with zero payload', () => {
     const result = calculateWeightAndBalance(navajoChieftain, {
       aircraftId: navajoChieftain.id,
@@ -170,62 +170,99 @@ describe('calculateWeightAndBalance - Navajo Chieftain', () => {
       fuelLoads: navajoChieftain.fuelTanks.map(t => ({ tankId: t.id, gallons: 0 })),
     });
 
-    expect(result.totalWeight).toBe(4319);
-    expect(result.cg).toBeCloseTo(132.0, 1);
+    expect(result.totalWeight).toBe(5082);
+    expect(result.cg).toBeCloseTo(122.5, 1);
     expect(result.isWithinWeightLimit).toBe(true);
     expect(result.isWithinCGEnvelope).toBe(true);
   });
 
-  it('handles both fuel tank types with typical loading', () => {
+  it('computes typical loading matching owner loading form', () => {
     const result = calculateWeightAndBalance(navajoChieftain, {
       aircraftId: navajoChieftain.id,
       stationLoads: [
-        { stationId: 'pilot-copilot', weight: 360 },
-        { stationId: 'row-2', weight: 340 },
-        { stationId: 'row-3', weight: 0 },
-        { stationId: 'row-4', weight: 0 },
-        { stationId: 'nose-baggage', weight: 100 },
-        { stationId: 'nacelle-lockers', weight: 0 },
-        { stationId: 'aft-baggage', weight: 50 },
+        { stationId: 'pilot', weight: 175 },
+        { stationId: 'copilot', weight: 200 },
+        { stationId: 'fwd-baggage', weight: 25 },
+        { stationId: 'aft-cockpit', weight: 0 },
+        { stationId: 'front-pax', weight: 0 },
+        { stationId: 'rear-pax', weight: 0 },
+        { stationId: 'back-pax', weight: 0 },
+        { stationId: 'rear-baggage', weight: 200 },
+        { stationId: 'r-nacelle', weight: 25 },
+        { stationId: 'l-nacelle', weight: 25 },
       ],
       fuelLoads: [
-        { tankId: 'inboard-fuel', gallons: 112 },
-        { tankId: 'outboard-fuel', gallons: 70 },
+        { tankId: 'main-fuel', gallons: 106 },
+        { tankId: 'aux-fuel', gallons: 76 },
       ],
     });
 
-    // Weight: 4319 + 360 + 340 + 100 + 50 + 672 + 420 = 6261
-    // Moment: 4319*132 + 360*95 + 340*131 + 100*19 + 50*255 + 672*126.8 + 420*148
-    //       = 570108 + 34200 + 44540 + 1900 + 12750 + 85209.6 + 62160 = 810867.6
-    // CG: 810867.6 / 6261 = 129.51
-    expect(result.totalWeight).toBe(6261);
-    expect(result.cg).toBeCloseTo(129.51, 0);
+    // Weight: 5082 + 175+200+25+200+25+25 + 636+456 = 6824
+    // Moment: 5082*122.5 + 175*95 + 200*95 + 25*19 + 200*255 + 25*192 + 25*192 + 636*126.8 + 456*148
+    //       = 622545 + 16625 + 19000 + 475 + 51000 + 4800 + 4800 + 80644.8 + 67488 = 867377.8
+    // CG: 867377.8 / 6824 = 127.11
+    expect(result.totalWeight).toBe(6824);
+    expect(result.cg).toBeCloseTo(127.11, 0);
     expect(result.isWithinWeightLimit).toBe(true);
     expect(result.isWithinCGEnvelope).toBe(true);
     expect(result.fuelDetails).toHaveLength(2);
   });
 
-  it('detects over max gross weight', () => {
+  it('detects over max takeoff weight and max ramp weight', () => {
     const result = calculateWeightAndBalance(navajoChieftain, {
       aircraftId: navajoChieftain.id,
       stationLoads: [
-        { stationId: 'pilot-copilot', weight: 400 },
-        { stationId: 'row-2', weight: 400 },
-        { stationId: 'row-3', weight: 400 },
-        { stationId: 'row-4', weight: 400 },
-        { stationId: 'nose-baggage', weight: 200 },
-        { stationId: 'nacelle-lockers', weight: 300 },
-        { stationId: 'aft-baggage', weight: 200 },
+        { stationId: 'pilot', weight: 300 },
+        { stationId: 'copilot', weight: 300 },
+        { stationId: 'fwd-baggage', weight: 200 },
+        { stationId: 'aft-cockpit', weight: 100 },
+        { stationId: 'front-pax', weight: 400 },
+        { stationId: 'rear-pax', weight: 400 },
+        { stationId: 'back-pax', weight: 400 },
+        { stationId: 'rear-baggage', weight: 200 },
+        { stationId: 'r-nacelle', weight: 150 },
+        { stationId: 'l-nacelle', weight: 150 },
       ],
       fuelLoads: [
-        { tankId: 'inboard-fuel', gallons: 112 },
-        { tankId: 'outboard-fuel', gallons: 70 },
+        { tankId: 'main-fuel', gallons: 106 },
+        { tankId: 'aux-fuel', gallons: 76 },
       ],
     });
 
-    // Weight: 4319 + 400+400+400+400+200+300+200 + 672+420 = 7711
-    expect(result.totalWeight).toBe(7711);
+    // Weight: 5082 + 300+300+200+100+400+400+400+200+150+150 + 636+456 = 8774
+    expect(result.totalWeight).toBe(8774);
     expect(result.isWithinWeightLimit).toBe(false);
     expect(result.warnings.some(w => w.code === 'OVER_MAX_GROSS')).toBe(true);
+    expect(result.warnings.some(w => w.code === 'OVER_MAX_RAMP')).toBe(true);
+    expect(result.warnings.some(w => w.code === 'OVER_MAX_LANDING')).toBe(true);
+  });
+
+  it('warns when over max landing weight but under max takeoff', () => {
+    const result = calculateWeightAndBalance(navajoChieftain, {
+      aircraftId: navajoChieftain.id,
+      stationLoads: [
+        { stationId: 'pilot', weight: 175 },
+        { stationId: 'copilot', weight: 200 },
+        { stationId: 'fwd-baggage', weight: 0 },
+        { stationId: 'aft-cockpit', weight: 0 },
+        { stationId: 'front-pax', weight: 0 },
+        { stationId: 'rear-pax', weight: 350 },
+        { stationId: 'back-pax', weight: 0 },
+        { stationId: 'rear-baggage', weight: 200 },
+        { stationId: 'r-nacelle', weight: 0 },
+        { stationId: 'l-nacelle', weight: 0 },
+      ],
+      fuelLoads: [
+        { tankId: 'main-fuel', gallons: 106 },
+        { tankId: 'aux-fuel', gallons: 76 },
+      ],
+    });
+
+    // Weight: 5082 + 175+200+350+200 + 636+456 = 7099
+    // Over max landing (7000) but under max takeoff (7368)
+    expect(result.totalWeight).toBe(7099);
+    expect(result.isWithinWeightLimit).toBe(true);
+    expect(result.warnings.some(w => w.code === 'OVER_MAX_GROSS')).toBe(false);
+    expect(result.warnings.some(w => w.code === 'OVER_MAX_LANDING')).toBe(true);
   });
 });

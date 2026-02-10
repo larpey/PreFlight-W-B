@@ -123,7 +123,7 @@ export function calculateWeightAndBalance(
     warnings.push({
       level: 'danger',
       code: 'OVER_MAX_GROSS',
-      message: 'Aircraft exceeds maximum gross weight',
+      message: 'Aircraft exceeds maximum takeoff weight',
       detail: `${totalWeight.toFixed(1)} lbs exceeds limit of ${maxGross.toLocaleString()} lbs by ${(totalWeight - maxGross).toFixed(1)} lbs`,
       regulatoryRef: 'FAR 91.103',
     });
@@ -131,9 +131,35 @@ export function calculateWeightAndBalance(
     warnings.push({
       level: 'caution',
       code: 'NEAR_MAX_GROSS',
-      message: 'Approaching maximum gross weight',
+      message: 'Approaching maximum takeoff weight',
       detail: `${weightMargin.toFixed(1)} lbs remaining (${((weightMargin / maxGross) * 100).toFixed(1)}% margin)`,
     });
+  }
+
+  // Check max ramp weight if defined
+  if (aircraft.maxRampWeight) {
+    const maxRamp = aircraft.maxRampWeight.value;
+    if (totalWeight > maxRamp) {
+      warnings.push({
+        level: 'danger',
+        code: 'OVER_MAX_RAMP',
+        message: 'Aircraft exceeds maximum ramp weight',
+        detail: `${totalWeight.toFixed(1)} lbs exceeds ramp limit of ${maxRamp.toLocaleString()} lbs by ${(totalWeight - maxRamp).toFixed(1)} lbs`,
+      });
+    }
+  }
+
+  // Check max landing weight if defined (informational for pre-flight planning)
+  if (aircraft.maxLandingWeight) {
+    const maxLanding = aircraft.maxLandingWeight.value;
+    if (totalWeight > maxLanding) {
+      warnings.push({
+        level: 'warning',
+        code: 'OVER_MAX_LANDING',
+        message: 'Current weight exceeds max landing weight',
+        detail: `${totalWeight.toFixed(1)} lbs exceeds landing limit of ${maxLanding.toLocaleString()} lbs — plan fuel burn before landing`,
+      });
+    }
   }
 
   // Generate CG warnings

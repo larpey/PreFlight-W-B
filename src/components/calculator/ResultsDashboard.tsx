@@ -67,6 +67,20 @@ export function ResultsDashboard({ result, aircraft }: ResultsDashboardProps) {
           </span>
           <span>{weightPct.toFixed(0)}%</span>
         </div>
+        {(aircraft.maxRampWeight || aircraft.maxLandingWeight) && (
+          <div className="flex gap-3 mt-1.5 text-[11px] text-ios-gray-2">
+            {aircraft.maxRampWeight && (
+              <span>
+                Ramp: {aircraft.maxRampWeight.value.toLocaleString()} lbs
+              </span>
+            )}
+            {aircraft.maxLandingWeight && (
+              <span className={result.totalWeight > aircraft.maxLandingWeight.value ? 'text-ios-orange' : ''}>
+                Landing: {aircraft.maxLandingWeight.value.toLocaleString()} lbs
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* CG Position */}
