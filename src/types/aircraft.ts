@@ -72,6 +72,8 @@ export interface Aircraft {
   emptyWeight: SourcedValue;
   emptyWeightArm: SourcedValue;
   maxGrossWeight: SourcedValue;
+  maxRampWeight?: SourcedValue;
+  maxLandingWeight?: SourcedValue;
   usefulLoad: SourcedValue;
 
   datum: string;
