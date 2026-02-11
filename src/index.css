@@ -199,6 +199,49 @@ input, select, textarea {
   transform: translateX(4px);
 }
 
+.landing-disclaimer {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 150, 0, 0.15);
+  background: rgba(255, 150, 0, 0.04);
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.landing-disclaimer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.landing-disclaimer-icon {
+  font-size: 16px;
+  color: #FF9500;
+}
+
+.landing-disclaimer-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FF9500;
+  letter-spacing: 0.3px;
+}
+
+.landing-disclaimer-text {
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 8px;
+}
+.landing-disclaimer-text:last-child {
+  margin-bottom: 0;
+}
+.landing-disclaimer-text strong {
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+}
+
 .landing-features {
   display: grid;
   grid-template-columns: 1fr 1fr;

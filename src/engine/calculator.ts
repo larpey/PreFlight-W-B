@@ -4,7 +4,7 @@ import type {
   CalculationResult,
   CalculationWarning,
 } from '../types/calculation';
-import { isPointInEnvelope } from './envelope';
+import { isPointInEnvelope, getEnvelopeLimitsAtWeight } from './envelope';
 
 export function calculateWeightAndBalance(
   aircraft: Aircraft,
@@ -163,20 +163,24 @@ export function calculateWeightAndBalance(
   }
 
   // Generate CG warnings
+  const envelopeLimits = getEnvelopeLimitsAtWeight(totalWeight, aircraft.cgEnvelope.points);
   if (!isWithinCGEnvelope) {
+    const limitDetail = envelopeLimits
+      ? `forward limit: ${envelopeLimits.fwdLimit.toFixed(1)}\" / aft limit: ${envelopeLimits.aftLimit.toFixed(1)}\" at ${totalWeight.toFixed(0)} lbs`
+      : `approved range: ${fwdLimit}–${aftLimit} in`;
     warnings.push({
       level: 'danger',
       code: 'CG_OUT_OF_ENVELOPE',
       message: 'Center of gravity outside approved envelope',
-      detail: `CG at ${cg.toFixed(2)} in — approved range: ${fwdLimit}–${aftLimit} in at this weight`,
+      detail: `CG at ${cg.toFixed(2)} in — ${limitDetail}`,
       regulatoryRef: 'FAR 91.103',
     });
-  } else if (cgForwardMargin < 1 || cgAftMargin < 1) {
+  } else if (envelopeLimits && (cg - envelopeLimits.fwdLimit < 1 || envelopeLimits.aftLimit - cg < 1)) {
     warnings.push({
       level: 'caution',
       code: 'CG_NEAR_LIMIT',
       message: 'CG is near envelope boundary',
-      detail: `CG at ${cg.toFixed(2)} in — forward margin: ${cgForwardMargin.toFixed(2)} in, aft margin: ${cgAftMargin.toFixed(2)} in`,
+      detail: `CG at ${cg.toFixed(2)} in — forward limit: ${envelopeLimits.fwdLimit.toFixed(1)}\" / aft limit: ${envelopeLimits.aftLimit.toFixed(1)}\" at this weight`,
     });
   }
 
