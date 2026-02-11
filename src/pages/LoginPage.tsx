@@ -22,35 +22,10 @@ const stagger = {
 export function LoginPage({ onComplete }: LoginPageProps) {
   const { login, continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Check for magic link token in URL
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    if (!token) return;
-
-    // Clean URL
-    window.history.replaceState({}, '', window.location.pathname);
-
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await apiFetch<{ token: string; user: { id: string; email: string; name: string; avatarUrl: string } }>(
-          '/auth/verify',
-          { method: 'POST', body: JSON.stringify({ token }) }
-        );
-        await login(data.token, data.user);
-        onComplete();
-      } catch {
-        setError('Magic link expired or invalid. Please request a new one.');
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [login, onComplete]);
 
   // Initialize Google Sign-In
   useEffect(() => {
@@ -98,7 +73,7 @@ export function LoginPage({ onComplete }: LoginPageProps) {
     }
   }, [login, onComplete]);
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
 
@@ -109,9 +84,29 @@ export function LoginPage({ onComplete }: LoginPageProps) {
         method: 'POST',
         body: JSON.stringify({ email: email.trim() }),
       });
-      setMagicLinkSent(true);
+      setCodeSent(true);
     } catch {
-      setError('Failed to send login link. Please try again.');
+      setError('Failed to send code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) return;
+
+    setLoading(true);
+    setError('');
+    try {
+      const data = await apiFetch<{ token: string; user: { id: string; email: string; name: string; avatarUrl: string } }>(
+        '/auth/verify',
+        { method: 'POST', body: JSON.stringify({ email: email.trim(), code: code.trim() }) }
+      );
+      await login(data.token, data.user);
+      onComplete();
+    } catch {
+      setError('Invalid or expired code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -161,9 +156,9 @@ export function LoginPage({ onComplete }: LoginPageProps) {
           </motion.div>
         )}
 
-        {/* Magic Link */}
-        {!magicLinkSent ? (
-          <motion.form variants={fadeUp} onSubmit={handleMagicLink} className="w-full max-w-[320px] mb-6">
+        {/* Email / Code */}
+        {!codeSent ? (
+          <motion.form variants={fadeUp} onSubmit={handleSendCode} className="w-full max-w-[320px] mb-6">
             <input
               type="email"
               value={email}
@@ -177,20 +172,45 @@ export function LoginPage({ onComplete }: LoginPageProps) {
               disabled={loading || !email.trim()}
               className="w-full py-3.5 bg-ios-blue rounded-xl text-white text-[16px] font-semibold disabled:opacity-40 transition-opacity"
             >
-              {loading ? 'Sending...' : 'Send Login Link'}
+              {loading ? 'Sending...' : 'Send Sign-In Code'}
             </button>
           </motion.form>
         ) : (
-          <motion.div
+          <motion.form
             variants={fadeUp}
-            className="w-full max-w-[320px] mb-6 p-5 rounded-xl border border-ios-green/20 bg-ios-green/5"
+            onSubmit={handleVerifyCode}
+            className="w-full max-w-[320px] mb-6"
           >
-            <p className="text-ios-green text-[15px] font-semibold mb-2">Check your email</p>
-            <p className="text-white/50 text-[14px] leading-relaxed">
-              We sent a login link to <span className="text-white/70 font-medium">{email}</span>.
-              Tap the link to sign in.
+            <p className="text-white/50 text-[14px] leading-relaxed mb-4 text-center">
+              We sent a 6-digit code to <span className="text-white/70 font-medium">{email}</span>
             </p>
-          </motion.div>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={code}
+              onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-center text-[28px] font-bold tracking-[0.3em] placeholder:text-white/15 outline-none focus:border-ios-blue/50 transition-colors mb-3"
+              disabled={loading}
+              autoFocus
+            />
+            <button
+              type="submit"
+              disabled={loading || code.length !== 6}
+              className="w-full py-3.5 bg-ios-blue rounded-xl text-white text-[16px] font-semibold disabled:opacity-40 transition-opacity mb-3"
+            >
+              {loading ? 'Verifying...' : 'Verify Code'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setCodeSent(false); setCode(''); setError(''); }}
+              className="w-full text-[14px] text-white/30 hover:text-white/50 transition-colors"
+            >
+              Use a different email
+            </button>
+          </motion.form>
         )}
 
         {/* Error */}

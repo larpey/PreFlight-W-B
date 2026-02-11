@@ -27,15 +27,36 @@ export async function apiFetch<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  const maxRetries = options.method === 'POST' ? 3 : 1;
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `API error ${res.status}`);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers,
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const status = res.status;
+        // Retry on 5xx or 429, not on 4xx client errors
+        if (attempt < maxRetries && (status >= 500 || status === 429)) {
+          await new Promise(r => setTimeout(r, 1000 * attempt));
+          continue;
+        }
+        throw new Error(body.error ?? `API error ${status}`);
+      }
+
+      return res.json() as Promise<T>;
+    } catch (err) {
+      if (attempt < maxRetries && err instanceof TypeError) {
+        // Network error — retry
+        await new Promise(r => setTimeout(r, 1000 * attempt));
+        continue;
+      }
+      throw err;
+    }
   }
 
-  return res.json();
+  throw new Error('Request failed after retries');
 }
