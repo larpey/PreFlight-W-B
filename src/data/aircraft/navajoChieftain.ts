@@ -116,13 +116,13 @@ export const navajoChieftain: Aircraft = {
 
   cgRange: {
     forward: {
-      value: 120,
+      value: 119,
       unit: 'inches',
       source: {
         primary: { ...blrSource, section: 'Forward CG Limit' },
-        confidence: 'high',
+        confidence: 'medium',
         lastVerified: '2026-02-10',
-        notes: 'Weight-dependent forward limit: 120" at ≤5,200 lbs, increasing to ~129" at max ramp (7,448 lbs). See CG envelope for precise limits.',
+        notes: 'Weight-dependent forward limit: ~119" at ≤5,200 lbs, increasing to ~128" at max ramp (7,448 lbs). See CG envelope for precise limits. Values adjusted from initial chart readings per owner verification.',
       },
     },
     aft: {
@@ -138,14 +138,14 @@ export const navajoChieftain: Aircraft = {
 
   cgEnvelope: {
     points: [
-      { weight: 4000, cg: 120 },
-      { weight: 5200, cg: 120 },
-      { weight: 5600, cg: 121 },
-      { weight: 6200, cg: 122 },
-      { weight: 6800, cg: 124 },
-      { weight: 7000, cg: 126 },
-      { weight: 7200, cg: 127 },
-      { weight: 7448, cg: 129 },
+      { weight: 4000, cg: 119 },
+      { weight: 5200, cg: 119 },
+      { weight: 5600, cg: 120 },
+      { weight: 6200, cg: 121 },
+      { weight: 6800, cg: 123 },
+      { weight: 7000, cg: 125 },
+      { weight: 7200, cg: 126 },
+      { weight: 7448, cg: 128 },
       { weight: 7448, cg: 135 },
       { weight: 4000, cg: 135 },
     ],
@@ -153,12 +153,12 @@ export const navajoChieftain: Aircraft = {
       primary: blrSource,
       secondary: {
         document: 'Owner-provided CG Envelope Chart (photographed)',
-        verification: 'Envelope points traced from Super Chieftain I chart. Forward limit read from labeled points: 120, 121, 122, 124, 126, 127. Aft limit ~135".',
+        verification: 'Envelope points traced from Super Chieftain I chart. Initial readings adjusted ~1" forward after owner verified manual CG calculations against original chart.',
         dateVerified: '2026-02-10',
       },
       confidence: 'medium',
       lastVerified: '2026-02-10',
-      notes: 'Traced from Super Chieftain I CG envelope chart (Boundary Layer Research). Points are approximate readings from the chart photograph. Pilot should verify against original chart for critical operations.',
+      notes: 'Traced from Super Chieftain I CG envelope chart (Boundary Layer Research). Forward limits adjusted ~1" from initial photo readings per owner cross-check. Pilot should verify against original chart for critical operations.',
     },
   },
 
