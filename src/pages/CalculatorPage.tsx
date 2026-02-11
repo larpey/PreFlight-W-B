@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import type { Aircraft } from '../types/aircraft';
 import { useCalculation } from '../hooks/useCalculation';
+import { useScenarios, type SavedScenario } from '../hooks/useScenarios';
+import { useAuth } from '../contexts/AuthContext';
 import { NavBar } from '../components/layout/NavBar';
 import { StationInput } from '../components/calculator/StationInput';
 import { FuelInput } from '../components/calculator/FuelInput';
@@ -7,16 +10,32 @@ import { ResultsDashboard } from '../components/calculator/ResultsDashboard';
 import { SafetyAlerts } from '../components/calculator/SafetyAlerts';
 import { CGEnvelopeChart } from '../components/chart/CGEnvelopeChart';
 import { Disclaimer } from '../components/common/Disclaimer';
+import { SaveModal } from '../components/scenarios/SaveModal';
 
 interface CalculatorPageProps {
   aircraft: Aircraft;
   onBack: () => void;
   onViewSources: () => void;
+  initialScenario?: SavedScenario;
 }
 
-export function CalculatorPage({ aircraft, onBack, onViewSources }: CalculatorPageProps) {
+export function CalculatorPage({ aircraft, onBack, onViewSources, initialScenario }: CalculatorPageProps) {
   const { stationLoads, fuelLoads, result, updateStation, updateFuel, resetAll } =
-    useCalculation(aircraft);
+    useCalculation(aircraft, initialScenario);
+  const { save } = useScenarios(aircraft.id);
+  const { isAuthenticated, isGuest } = useAuth();
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [loadedScenarioId, setLoadedScenarioId] = useState<string | undefined>(initialScenario?.id);
+  const [loadedScenarioName, setLoadedScenarioName] = useState(initialScenario?.name);
+
+  const canSave = isAuthenticated || isGuest;
+
+  const handleSave = async (name: string) => {
+    const scenario = await save(name, aircraft.id, stationLoads, fuelLoads, loadedScenarioId);
+    setLoadedScenarioId(scenario.id);
+    setLoadedScenarioName(scenario.name);
+    setShowSaveModal(false);
+  };
 
   const dangerWarnings = result.warnings.filter(w => w.level === 'danger');
 
@@ -26,13 +45,36 @@ export function CalculatorPage({ aircraft, onBack, onViewSources }: CalculatorPa
         title={aircraft.name}
         onBack={onBack}
         rightAction={
-          <button
-            onClick={onViewSources}
-            className="text-ios-blue text-[15px] min-w-[44px] min-h-[44px] flex items-center justify-end active:opacity-60"
-          >
-            Sources
-          </button>
+          <div className="flex items-center gap-2">
+            {canSave && (
+              <button
+                onClick={() => {
+                  if (loadedScenarioId && loadedScenarioName) {
+                    handleSave(loadedScenarioName);
+                  } else {
+                    setShowSaveModal(true);
+                  }
+                }}
+                className="text-ios-blue text-[15px] min-h-[44px] flex items-center active:opacity-60"
+              >
+                {loadedScenarioId ? 'Saved' : 'Save'}
+              </button>
+            )}
+            <button
+              onClick={onViewSources}
+              className="text-ios-blue text-[15px] min-h-[44px] flex items-center justify-end active:opacity-60"
+            >
+              Sources
+            </button>
+          </div>
         }
+      />
+
+      <SaveModal
+        isOpen={showSaveModal}
+        onSave={handleSave}
+        onCancel={() => setShowSaveModal(false)}
+        defaultName={loadedScenarioName}
       />
 
       <div className="flex-1 px-4 py-4 space-y-4">

@@ -4,14 +4,18 @@ import { aircraftDatabase } from '../data/aircraft';
 import { NavBar } from '../components/layout/NavBar';
 import { AircraftList } from '../components/aircraft/AircraftList';
 import { Disclaimer } from '../components/common/Disclaimer';
+import { useScenarios } from '../hooks/useScenarios';
 
 interface AircraftSelectPageProps {
   onSelect: (aircraft: Aircraft) => void;
   onHome?: () => void;
+  onViewScenarios?: () => void;
 }
 
-export function AircraftSelectPage({ onSelect, onHome }: AircraftSelectPageProps) {
+export function AircraftSelectPage({ onSelect, onHome, onViewScenarios }: AircraftSelectPageProps) {
   const [search, setSearch] = useState('');
+  const { scenarios } = useScenarios();
+  const savedCount = scenarios.length;
 
   const homeButton = onHome ? (
     <button
@@ -42,6 +46,27 @@ export function AircraftSelectPage({ onSelect, onHome }: AircraftSelectPageProps
           />
         </div>
       </div>
+
+      {/* Saved scenarios button */}
+      {onViewScenarios && savedCount > 0 && (
+        <div className="px-4 pb-2">
+          <button
+            onClick={onViewScenarios}
+            className="w-full flex items-center justify-between px-4 py-3 bg-ios-card dark:bg-white/5 rounded-xl active:bg-ios-gray-5 dark:active:bg-white/10 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-[20px]">📋</span>
+              <span className="text-[16px] text-ios-text dark:text-white">Saved Scenarios</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[14px] text-ios-gray-1">{savedCount}</span>
+              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-ios-gray-3">
+                <path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Aircraft list */}
       <div className="flex-1 pb-4">

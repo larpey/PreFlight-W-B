@@ -4,9 +4,10 @@ interface NavBarProps {
   title: string;
   onBack?: () => void;
   rightAction?: ReactNode;
+  rightContent?: ReactNode;
 }
 
-export function NavBar({ title, onBack, rightAction }: NavBarProps) {
+export function NavBar({ title, onBack, rightAction, rightContent }: NavBarProps) {
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-xl bg-ios-gray-6/80 dark:bg-black/80 border-b border-ios-separator dark:border-[#38383A]">
       <div className="flex items-center justify-between h-11 px-4">
@@ -23,7 +24,7 @@ export function NavBar({ title, onBack, rightAction }: NavBarProps) {
         <h1 className="text-[17px] font-semibold text-black dark:text-white truncate mx-4">
           {title}
         </h1>
-        {rightAction ?? <div className="w-11" />}
+        {rightContent ?? rightAction ?? <div className="w-11" />}
       </div>
     </nav>
   );

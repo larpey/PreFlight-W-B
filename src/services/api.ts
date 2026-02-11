@@ -1,0 +1,41 @@
+import { getDB } from '../db';
+
+const API_BASE = import.meta.env.VITE_API_URL ?? 'https://api.preflight.valderis.com';
+
+async function getToken(): Promise<string | null> {
+  try {
+    const db = await getDB();
+    const auth = await db.get('auth', 'session');
+    return auth?.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = await getToken();
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? `API error ${res.status}`);
+  }
+
+  return res.json();
+}
