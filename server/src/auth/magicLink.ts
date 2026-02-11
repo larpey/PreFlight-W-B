@@ -1,51 +1,77 @@
-import { randomBytes } from 'node:crypto';
+import { randomInt } from 'node:crypto';
 import { Resend } from 'resend';
 import pool from '../db.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? '');
-const BASE_URL = process.env.MAGIC_LINK_BASE_URL ?? 'http://localhost:5173';
-const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@preflight.valderis.com';
+let resend: Resend | null = null;
+function getResend(): Resend {
+  if (!resend) {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) throw new Error('RESEND_API_KEY not configured');
+    resend = new Resend(key);
+  }
+  return resend;
+}
 
-export async function sendMagicLink(email: string): Promise<void> {
-  const token = randomBytes(32).toString('hex');
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@valderis.com';
+
+function generateCode(): string {
+  return String(randomInt(100000, 999999));
+}
+
+export async function sendVerificationCode(email: string): Promise<void> {
+  const code = generateCode();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  // Invalidate any existing unused codes for this email
+  await pool.query(
+    `UPDATE magic_links SET used = true WHERE email = $1 AND used = false`,
+    [email]
+  );
 
   await pool.query(
     `INSERT INTO magic_links (email, token, expires_at) VALUES ($1, $2, $3)`,
-    [email, token, expiresAt]
+    [email, code, expiresAt]
   );
 
-  const link = `${BASE_URL}/auth/verify?token=${token}`;
-
-  await resend.emails.send({
+  const emailPayload = {
     from: FROM_EMAIL,
     to: email,
-    subject: 'Sign in to PreFlight W&B',
+    subject: 'Your PreFlight W&B sign-in code',
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
-        <h2 style="color: #000; font-size: 24px; margin-bottom: 16px;">Sign in to PreFlight W&B</h2>
+        <h2 style="color: #000; font-size: 24px; margin-bottom: 16px;">Your sign-in code</h2>
         <p style="color: #666; font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
-          Tap the button below to sign in. This link expires in 15 minutes.
+          Enter this code in PreFlight W&B to sign in. It expires in 10 minutes.
         </p>
-        <a href="${link}" style="display: inline-block; padding: 14px 32px; background: #007AFF; color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 12px;">
-          Sign In
-        </a>
-        <p style="color: #999; font-size: 13px; margin-top: 32px;">
+        <div style="background: #F2F2F7; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #000;">${code}</span>
+        </div>
+        <p style="color: #999; font-size: 13px;">
           If you didn't request this, you can safely ignore this email.
         </p>
       </div>
     `,
-  });
+  };
+
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await getResend().emails.send(emailPayload);
+      return;
+    } catch (err) {
+      if (attempt === MAX_RETRIES) throw err;
+      await new Promise(r => setTimeout(r, 1000 * attempt));
+    }
+  }
 }
 
-export async function verifyMagicToken(token: string): Promise<string | null> {
+export async function verifyCode(email: string, code: string): Promise<boolean> {
   const result = await pool.query(
     `UPDATE magic_links SET used = true
-     WHERE token = $1 AND used = false AND expires_at > now()
+     WHERE email = $1 AND token = $2 AND used = false AND expires_at > now()
      RETURNING email`,
-    [token]
+    [email, code]
   );
 
-  if (result.rows.length === 0) return null;
-  return result.rows[0].email;
+  return result.rows.length > 0;
 }

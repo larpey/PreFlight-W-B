@@ -2,7 +2,7 @@ import { Router } from 'express';
 import pool from '../db.js';
 import { signToken } from '../auth/jwt.js';
 import { verifyGoogleToken } from '../auth/google.js';
-import { sendMagicLink, verifyMagicToken } from '../auth/magicLink.js';
+import { sendVerificationCode, verifyCode } from '../auth/magicLink.js';
 import { requireAuth } from '../auth/middleware.js';
 
 const router = Router();
@@ -43,7 +43,7 @@ router.post('/google', async (req, res) => {
   }
 });
 
-// Send magic link email
+// Send verification code email
 router.post('/magic-link', async (req, res) => {
   try {
     const { email } = req.body;
@@ -52,26 +52,26 @@ router.post('/magic-link', async (req, res) => {
       return;
     }
 
-    await sendMagicLink(email.toLowerCase().trim());
+    await sendVerificationCode(email.toLowerCase().trim());
     res.json({ sent: true });
   } catch (err) {
-    console.error('Magic link error:', err);
-    res.status(500).json({ error: 'Failed to send magic link' });
+    console.error('Send code error:', err);
+    res.status(500).json({ error: 'Failed to send verification code' });
   }
 });
 
-// Verify magic link token → JWT
+// Verify 6-digit code → JWT
 router.post('/verify', async (req, res) => {
   try {
-    const { token } = req.body;
-    if (!token) {
-      res.status(400).json({ error: 'Missing token' });
+    const { email, code } = req.body;
+    if (!email || !code) {
+      res.status(400).json({ error: 'Missing email or code' });
       return;
     }
 
-    const email = await verifyMagicToken(token);
-    if (!email) {
-      res.status(401).json({ error: 'Invalid or expired magic link' });
+    const valid = await verifyCode(email.toLowerCase().trim(), code.trim());
+    if (!valid) {
+      res.status(401).json({ error: 'Invalid or expired code' });
       return;
     }
 
@@ -81,7 +81,7 @@ router.post('/verify', async (req, res) => {
        VALUES ($1, 'magic_link')
        ON CONFLICT (email) DO UPDATE SET last_login = now()
        RETURNING id, email, name, avatar_url`,
-      [email]
+      [email.toLowerCase().trim()]
     );
 
     const user = result.rows[0];
