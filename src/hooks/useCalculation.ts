@@ -2,13 +2,14 @@ import { useMemo, useState, useCallback } from 'react';
 import type { Aircraft } from '../types/aircraft';
 import type { StationLoad, FuelLoad, CalculationResult } from '../types/calculation';
 import { calculateWeightAndBalance } from '../engine/calculator';
+import type { SavedScenario } from '../db';
 
-export function useCalculation(aircraft: Aircraft) {
+export function useCalculation(aircraft: Aircraft, initialScenario?: SavedScenario) {
   const [stationLoads, setStationLoads] = useState<StationLoad[]>(
-    aircraft.stations.map(s => ({ stationId: s.id, weight: s.defaultWeight ?? 0 }))
+    initialScenario?.stationLoads ?? aircraft.stations.map(s => ({ stationId: s.id, weight: s.defaultWeight ?? 0 }))
   );
   const [fuelLoads, setFuelLoads] = useState<FuelLoad[]>(
-    aircraft.fuelTanks.map(t => ({ tankId: t.id, gallons: 0 }))
+    initialScenario?.fuelLoads ?? aircraft.fuelTanks.map(t => ({ tankId: t.id, gallons: 0 }))
   );
 
   const result: CalculationResult = useMemo(
