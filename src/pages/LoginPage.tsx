@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { apiFetch } from '../services/api';
 
@@ -11,12 +11,12 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
 const ease: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease } },
 };
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
 
 export function LoginPage({ onComplete }: LoginPageProps) {
@@ -142,7 +142,7 @@ export function LoginPage({ onComplete }: LoginPageProps) {
 
         {/* Google Sign-In */}
         {GOOGLE_CLIENT_ID && (
-          <motion.div variants={fadeUp} className="mb-6 w-full flex justify-center">
+          <motion.div variants={fadeUp} className="mb-6 w-full flex justify-center min-h-11">
             <div id="google-signin-btn" />
           </motion.div>
         )}
@@ -157,61 +157,75 @@ export function LoginPage({ onComplete }: LoginPageProps) {
         )}
 
         {/* Email / Code */}
-        {!codeSent ? (
-          <motion.form variants={fadeUp} onSubmit={handleSendCode} className="w-full max-w-[320px] mb-6">
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="Email address"
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white text-[16px] placeholder:text-white/30 outline-none focus:border-ios-blue/50 transition-colors mb-3"
-              disabled={loading}
-            />
-            <button
-              type="submit"
-              disabled={loading || !email.trim()}
-              className="w-full py-3.5 bg-ios-blue rounded-xl text-white text-[16px] font-semibold disabled:opacity-40 transition-opacity"
-            >
-              {loading ? 'Sending...' : 'Send Sign-In Code'}
-            </button>
-          </motion.form>
-        ) : (
-          <motion.form
-            variants={fadeUp}
-            onSubmit={handleVerifyCode}
-            className="w-full max-w-[320px] mb-6"
-          >
-            <p className="text-white/50 text-[14px] leading-relaxed mb-4 text-center">
-              We sent a 6-digit code to <span className="text-white/70 font-medium">{email}</span>
-            </p>
-            <input
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              value={code}
-              onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
-              placeholder="000000"
-              className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-center text-[28px] font-bold tracking-[0.3em] placeholder:text-white/15 outline-none focus:border-ios-blue/50 transition-colors mb-3"
-              disabled={loading}
-              autoFocus
-            />
-            <button
-              type="submit"
-              disabled={loading || code.length !== 6}
-              className="w-full py-3.5 bg-ios-blue rounded-xl text-white text-[16px] font-semibold disabled:opacity-40 transition-opacity mb-3"
-            >
-              {loading ? 'Verifying...' : 'Verify Code'}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setCodeSent(false); setCode(''); setError(''); }}
-              className="w-full text-[14px] text-white/30 hover:text-white/50 transition-colors"
-            >
-              Use a different email
-            </button>
-          </motion.form>
-        )}
+        <motion.div variants={fadeUp} className="w-full max-w-[320px] mb-6">
+          <AnimatePresence mode="wait">
+            {!codeSent ? (
+              <motion.form
+                key="email"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onSubmit={handleSendCode}
+              >
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="Email address"
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white text-[16px] placeholder:text-white/30 outline-none focus:border-ios-blue/50 transition-colors mb-3"
+                  disabled={loading}
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !email.trim()}
+                  className="w-full py-3.5 bg-ios-blue rounded-xl text-white text-[16px] font-semibold disabled:opacity-40 transition-opacity"
+                >
+                  {loading ? 'Sending...' : 'Send Sign-In Code'}
+                </button>
+              </motion.form>
+            ) : (
+              <motion.form
+                key="code"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onSubmit={handleVerifyCode}
+              >
+                <p className="text-white/50 text-[14px] leading-relaxed mb-4 text-center">
+                  We sent a 6-digit code to <span className="text-white/70 font-medium">{email}</span>
+                </p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={code}
+                  onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white text-center text-[28px] font-bold tracking-[0.3em] placeholder:text-white/15 outline-none focus:border-ios-blue/50 transition-colors mb-3"
+                  disabled={loading}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  disabled={loading || code.length !== 6}
+                  className="w-full py-3.5 bg-ios-blue rounded-xl text-white text-[16px] font-semibold disabled:opacity-40 transition-opacity mb-3"
+                >
+                  {loading ? 'Verifying...' : 'Verify Code'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setCodeSent(false); setCode(''); setError(''); }}
+                  className="w-full text-[14px] text-white/30 hover:text-white/50 transition-colors"
+                >
+                  Use a different email
+                </button>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Error */}
         {error && (

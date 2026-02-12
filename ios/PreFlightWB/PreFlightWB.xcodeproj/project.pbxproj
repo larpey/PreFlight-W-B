@@ -1,0 +1,716 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		20E5720429A3AC3156AC1C2C /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBBC2BC8721DC3EFD5203CA /* KeychainHelper.swift */; };
+		2248CA022B2DE6DAF564B74C /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B7813CA08D34E14E0B40EB /* SourcesView.swift */; };
+		27F9A2E9A5963C1D56637AED /* Calculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08D99434CD2B51D27F1D372 /* Calculator.swift */; };
+		32EC5452F13263C35E881954 /* FuelInputRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5336F442AAFB175691A0B3 /* FuelInputRow.swift */; };
+		345CCCCC13687F91960DBB20 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FEBB0B0866094084213DBF /* SyncService.swift */; };
+		3AA6DAB3E9EC893A009B75BF /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B338AAE6882019EA004ECA80 /* GoogleSignIn */; };
+		3B2FD5CE38A31C2A3CAA3E36 /* SaveScenarioSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C650C84C645806C94ED310 /* SaveScenarioSheet.swift */; };
+		43C5CF5F161C7CB95A9EC3BF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257E9A8A9BA6C1421F07ED16 /* APIClient.swift */; };
+		54293EA9D9EE06B8DE8A0521 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A53C2942CD35954FFFEB8FD /* ContentView.swift */; };
+		55AEE3C91D1FCA95431AF6E5 /* NavajoChieftain.swift in Sources */ = {isa = PBXBuildFile; fileRef = CACF713E75F089D73ED06AE9 /* NavajoChieftain.swift */; };
+		576F8353E16CA35932BC94C9 /* AircraftCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D66890EBC290BB966CD072 /* AircraftCard.swift */; };
+		5DDA9303F121BDFEE9B63144 /* LandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD9DDF89C7EE4A82B7FA8A5 /* LandingView.swift */; };
+		6224AAF14387553F13E44749 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2DAD35825C179FB0064C14 /* DesignTokens.swift */; };
+		64D07F2662FE55EFE1295CED /* ResultsDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9392A790E309EB012DA339B /* ResultsDashboard.swift */; };
+		7606CF45FB216FE134F7FA97 /* PreFlightWBApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764EE2251E13828EFE9EFD90 /* PreFlightWBApp.swift */; };
+		7CBD5BE12B7756EB3C506866 /* CGEnvelopeChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088B52A6DCE0B7284A6AE534 /* CGEnvelopeChart.swift */; };
+		7DEEC29A30FD383DF13D173D /* ScenariosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0E859AE073CE38DFCE7B8A /* ScenariosView.swift */; };
+		8523D35296243AD66CC5C0B4 /* StationInputRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F71903D281E98C56A950F426 /* StationInputRow.swift */; };
+		99A7EAB79F8AA3EE8B24F6F3 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC6654F5BB8B6BC37BB72DFB /* SectionHeader.swift */; };
+		9F2539283926E52EC0DB5424 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1188A0FAFE42C5ED0E54EA6 /* GlassCard.swift */; };
+		AC2D495FAF3B187AF82A3610 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C7EAC9DDC42B3B007AE4F73 /* Assets.xcassets */; };
+		B18037E8A228E69FD6BB3EB7 /* AnimatedStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB9451C1ED451BA9A2950D4 /* AnimatedStatusBadge.swift */; };
+		B49B294FCFFEAD2EDE731529 /* SafetyAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BA678362794F3F7BDA8EE1 /* SafetyAlerts.swift */; };
+		B65ECCA9D6E7910CB7624F7E /* HapticSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43465FC675C419F55AF0F3 /* HapticSlider.swift */; };
+		BAACC1E52FD4895D68385A76 /* CompactResultsHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F240E8A1D9A0BA16787352C2 /* CompactResultsHeader.swift */; };
+		BC16046B007A245B687EB8D3 /* CalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652573FF57B78620E78AFD0E /* CalculatorView.swift */; };
+		BC92C80B1F5DD46B6AC793C1 /* Envelope.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47BB4F7AC70CC4BD73FFB90 /* Envelope.swift */; };
+		C26C6D7EE2091913A2344EB4 /* BonanzaA36.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBC04537A7F7CDD2519FB68 /* BonanzaA36.swift */; };
+		C941F673648E744A51F43B0B /* AircraftSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144728E4E41E07665EDA0DB7 /* AircraftSelectView.swift */; };
+		DFDD71B551AAA3F4F63DC0E0 /* Cessna172M.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8D961381E2B6693F6ACA43 /* Cessna172M.swift */; };
+		E236095401D119F76AAF65F7 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F60E799307DC0B37F194BF /* Calculation.swift */; };
+		E3B34A51C47FBEEDA1BD6FB2 /* Scenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8D74F1877882D64B00BF70 /* Scenario.swift */; };
+		EB1597ADC27F3BFF311D623F /* Cherokee6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593E804796C72B9739132E5A /* Cherokee6.swift */; };
+		EC62E9BF67F3A5AA45C87C53 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB793D1B823D3605B4C9F0D4 /* AuthManager.swift */; };
+		EE80524D90B0F54DCCFC088D /* AircraftDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5572759A078B63D4ADAC039 /* AircraftDatabase.swift */; };
+		F21B6C1010B3517623F01D08 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014C364B2583DD2EF5F11D0D /* LoginView.swift */; };
+		F25FD3A4D126DAF05DB474ED /* Regulatory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64AE7C1527C2B42479D756A6 /* Regulatory.swift */; };
+		F3875F5F9623A3BAF50D2E3B /* Aircraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405B1E4B03A78A24E00277B1 /* Aircraft.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DF7AD72F8359593F582730E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1118E2236DDBAE62BC873E80 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EDD28C2041B5C9B9DF2EFB8E;
+			remoteInfo = PreFlightWB;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		014C364B2583DD2EF5F11D0D /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		088B52A6DCE0B7284A6AE534 /* CGEnvelopeChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGEnvelopeChart.swift; sourceTree = "<group>"; };
+		0E8D74F1877882D64B00BF70 /* Scenario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenario.swift; sourceTree = "<group>"; };
+		144728E4E41E07665EDA0DB7 /* AircraftSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AircraftSelectView.swift; sourceTree = "<group>"; };
+		24B7813CA08D34E14E0B40EB /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
+		257E9A8A9BA6C1421F07ED16 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		29BA678362794F3F7BDA8EE1 /* SafetyAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyAlerts.swift; sourceTree = "<group>"; };
+		2C7EAC9DDC42B3B007AE4F73 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2CBBC2BC8721DC3EFD5203CA /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		34C650C84C645806C94ED310 /* SaveScenarioSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveScenarioSheet.swift; sourceTree = "<group>"; };
+		405B1E4B03A78A24E00277B1 /* Aircraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aircraft.swift; sourceTree = "<group>"; };
+		42FEBB0B0866094084213DBF /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		52F60E799307DC0B37F194BF /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
+		556AFE0E7E7E19333117A57E /* PreFlightWB.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PreFlightWB.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		593E804796C72B9739132E5A /* Cherokee6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cherokee6.swift; sourceTree = "<group>"; };
+		5A53C2942CD35954FFFEB8FD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5D2DAD35825C179FB0064C14 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		605F7F7CC7CF48F8F243A8A9 /* PreFlightWB.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PreFlightWB.entitlements; sourceTree = "<group>"; };
+		64AE7C1527C2B42479D756A6 /* Regulatory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Regulatory.swift; sourceTree = "<group>"; };
+		652573FF57B78620E78AFD0E /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
+		6AD9DDF89C7EE4A82B7FA8A5 /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
+		764EE2251E13828EFE9EFD90 /* PreFlightWBApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreFlightWBApp.swift; sourceTree = "<group>"; };
+		9C2B0E66254E522F7A28C4D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		AB793D1B823D3605B4C9F0D4 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		BD5336F442AAFB175691A0B3 /* FuelInputRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelInputRow.swift; sourceTree = "<group>"; };
+		C08D99434CD2B51D27F1D372 /* Calculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculator.swift; sourceTree = "<group>"; };
+		C1188A0FAFE42C5ED0E54EA6 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		C53602FE0D203F3383AE09A3 /* PreFlightWBTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PreFlightWBTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CACF713E75F089D73ED06AE9 /* NavajoChieftain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavajoChieftain.swift; sourceTree = "<group>"; };
+		CFB9451C1ED451BA9A2950D4 /* AnimatedStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedStatusBadge.swift; sourceTree = "<group>"; };
+		DA43465FC675C419F55AF0F3 /* HapticSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticSlider.swift; sourceTree = "<group>"; };
+		DE0E859AE073CE38DFCE7B8A /* ScenariosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenariosView.swift; sourceTree = "<group>"; };
+		E47BB4F7AC70CC4BD73FFB90 /* Envelope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Envelope.swift; sourceTree = "<group>"; };
+		E5572759A078B63D4ADAC039 /* AircraftDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AircraftDatabase.swift; sourceTree = "<group>"; };
+		E9392A790E309EB012DA339B /* ResultsDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsDashboard.swift; sourceTree = "<group>"; };
+		EEBC04537A7F7CDD2519FB68 /* BonanzaA36.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonanzaA36.swift; sourceTree = "<group>"; };
+		F240E8A1D9A0BA16787352C2 /* CompactResultsHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactResultsHeader.swift; sourceTree = "<group>"; };
+		F71903D281E98C56A950F426 /* StationInputRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationInputRow.swift; sourceTree = "<group>"; };
+		F7D66890EBC290BB966CD072 /* AircraftCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AircraftCard.swift; sourceTree = "<group>"; };
+		FB8D961381E2B6693F6ACA43 /* Cessna172M.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cessna172M.swift; sourceTree = "<group>"; };
+		FC6654F5BB8B6BC37BB72DFB /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C5D30AC3F38F945ABF3C99E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AA6DAB3E9EC893A009B75BF /* GoogleSignIn in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		002A93FD20799539E85FF5FE /* Calculator */ = {
+			isa = PBXGroup;
+			children = (
+				652573FF57B78620E78AFD0E /* CalculatorView.swift */,
+				F240E8A1D9A0BA16787352C2 /* CompactResultsHeader.swift */,
+				BD5336F442AAFB175691A0B3 /* FuelInputRow.swift */,
+				E9392A790E309EB012DA339B /* ResultsDashboard.swift */,
+				29BA678362794F3F7BDA8EE1 /* SafetyAlerts.swift */,
+				F71903D281E98C56A950F426 /* StationInputRow.swift */,
+			);
+			path = Calculator;
+			sourceTree = "<group>";
+		};
+		06B9275A82135434320E2154 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				C08D99434CD2B51D27F1D372 /* Calculator.swift */,
+				E47BB4F7AC70CC4BD73FFB90 /* Envelope.swift */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		12942F6B4E011322C03FF83E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				24B7813CA08D34E14E0B40EB /* SourcesView.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		1B1A6D8F3E76C655A69A6418 /* Chart */ = {
+			isa = PBXGroup;
+			children = (
+				088B52A6DCE0B7284A6AE534 /* CGEnvelopeChart.swift */,
+			);
+			path = Chart;
+			sourceTree = "<group>";
+		};
+		22FBC0DCE9E0E93A1BE1254F /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				E5572759A078B63D4ADAC039 /* AircraftDatabase.swift */,
+				EEBC04537A7F7CDD2519FB68 /* BonanzaA36.swift */,
+				FB8D961381E2B6693F6ACA43 /* Cessna172M.swift */,
+				593E804796C72B9739132E5A /* Cherokee6.swift */,
+				CACF713E75F089D73ED06AE9 /* NavajoChieftain.swift */,
+				64AE7C1527C2B42479D756A6 /* Regulatory.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		3B79E08FEC83C458E10799D1 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				5A53C2942CD35954FFFEB8FD /* ContentView.swift */,
+				764EE2251E13828EFE9EFD90 /* PreFlightWBApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		5701EF17ADCE06A2C1A66532 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2C7EAC9DDC42B3B007AE4F73 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		674802428B670B9F9D33F790 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				CFB9451C1ED451BA9A2950D4 /* AnimatedStatusBadge.swift */,
+				5D2DAD35825C179FB0064C14 /* DesignTokens.swift */,
+				C1188A0FAFE42C5ED0E54EA6 /* GlassCard.swift */,
+				DA43465FC675C419F55AF0F3 /* HapticSlider.swift */,
+				FC6654F5BB8B6BC37BB72DFB /* SectionHeader.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		6E80957F279F2064B56015A2 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				014C364B2583DD2EF5F11D0D /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		762B4B43DD0FCC9BA7D88476 /* Scenarios */ = {
+			isa = PBXGroup;
+			children = (
+				34C650C84C645806C94ED310 /* SaveScenarioSheet.swift */,
+				DE0E859AE073CE38DFCE7B8A /* ScenariosView.swift */,
+			);
+			path = Scenarios;
+			sourceTree = "<group>";
+		};
+		7A295935C633D4C65688989D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				556AFE0E7E7E19333117A57E /* PreFlightWB.app */,
+				C53602FE0D203F3383AE09A3 /* PreFlightWBTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7E06458A06B23C7E587EAA66 /* Landing */ = {
+			isa = PBXGroup;
+			children = (
+				6AD9DDF89C7EE4A82B7FA8A5 /* LandingView.swift */,
+			);
+			path = Landing;
+			sourceTree = "<group>";
+		};
+		80FABB3B7B558E0368DA1796 /* Aircraft */ = {
+			isa = PBXGroup;
+			children = (
+				F7D66890EBC290BB966CD072 /* AircraftCard.swift */,
+				144728E4E41E07665EDA0DB7 /* AircraftSelectView.swift */,
+			);
+			path = Aircraft;
+			sourceTree = "<group>";
+		};
+		83EE950929E8DBF9D3406C24 /* PreFlightWB */ = {
+			isa = PBXGroup;
+			children = (
+				9C2B0E66254E522F7A28C4D1 /* Info.plist */,
+				605F7F7CC7CF48F8F243A8A9 /* PreFlightWB.entitlements */,
+				3B79E08FEC83C458E10799D1 /* App */,
+				22FBC0DCE9E0E93A1BE1254F /* Data */,
+				06B9275A82135434320E2154 /* Engine */,
+				F4A40363BBEC945696EB492D /* Models */,
+				5701EF17ADCE06A2C1A66532 /* Resources */,
+				BAC8460C45E9E985DCF07586 /* Services */,
+				DF0549CB0E7D3EF7D369ED25 /* Views */,
+			);
+			path = PreFlightWB;
+			sourceTree = "<group>";
+		};
+		A6ED7A9BFDC7CCC8B4541D81 = {
+			isa = PBXGroup;
+			children = (
+				83EE950929E8DBF9D3406C24 /* PreFlightWB */,
+				D8E7599CD64EDD95FCC7ADBD /* PreFlightWBTests */,
+				7A295935C633D4C65688989D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BAC8460C45E9E985DCF07586 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				257E9A8A9BA6C1421F07ED16 /* APIClient.swift */,
+				AB793D1B823D3605B4C9F0D4 /* AuthManager.swift */,
+				2CBBC2BC8721DC3EFD5203CA /* KeychainHelper.swift */,
+				42FEBB0B0866094084213DBF /* SyncService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D8E7599CD64EDD95FCC7ADBD /* PreFlightWBTests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = PreFlightWBTests;
+			sourceTree = "<group>";
+		};
+		DF0549CB0E7D3EF7D369ED25 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				80FABB3B7B558E0368DA1796 /* Aircraft */,
+				6E80957F279F2064B56015A2 /* Auth */,
+				002A93FD20799539E85FF5FE /* Calculator */,
+				1B1A6D8F3E76C655A69A6418 /* Chart */,
+				674802428B670B9F9D33F790 /* Common */,
+				7E06458A06B23C7E587EAA66 /* Landing */,
+				762B4B43DD0FCC9BA7D88476 /* Scenarios */,
+				12942F6B4E011322C03FF83E /* Sources */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F4A40363BBEC945696EB492D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				405B1E4B03A78A24E00277B1 /* Aircraft.swift */,
+				52F60E799307DC0B37F194BF /* Calculation.swift */,
+				0E8D74F1877882D64B00BF70 /* Scenario.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		42731E56B77FFFC8D19A0E81 /* PreFlightWBTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE7286B856EF69FFAC87A268 /* Build configuration list for PBXNativeTarget "PreFlightWBTests" */;
+			buildPhases = (
+				85887E93CF6EBDA4E944FC9B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EF55AAA19B2BE4F4D6ECD9B0 /* PBXTargetDependency */,
+			);
+			name = PreFlightWBTests;
+			packageProductDependencies = (
+			);
+			productName = PreFlightWBTests;
+			productReference = C53602FE0D203F3383AE09A3 /* PreFlightWBTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EDD28C2041B5C9B9DF2EFB8E /* PreFlightWB */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 77D7DEFF8122E57EE3663D69 /* Build configuration list for PBXNativeTarget "PreFlightWB" */;
+			buildPhases = (
+				F78C16FA38123689FFF0FEF9 /* Sources */,
+				0EBE1ED8D0BFA265185844EC /* Resources */,
+				C5D30AC3F38F945ABF3C99E7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PreFlightWB;
+			packageProductDependencies = (
+				B338AAE6882019EA004ECA80 /* GoogleSignIn */,
+			);
+			productName = PreFlightWB;
+			productReference = 556AFE0E7E7E19333117A57E /* PreFlightWB.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1118E2236DDBAE62BC873E80 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					EDD28C2041B5C9B9DF2EFB8E = {
+						DevelopmentTeam = 4F4Q566K62;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0825280297A423689181C23D /* Build configuration list for PBXProject "PreFlightWB" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A6ED7A9BFDC7CCC8B4541D81;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				04CF71BB6C449EA1C5B17B10 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EDD28C2041B5C9B9DF2EFB8E /* PreFlightWB */,
+				42731E56B77FFFC8D19A0E81 /* PreFlightWBTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0EBE1ED8D0BFA265185844EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC2D495FAF3B187AF82A3610 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		85887E93CF6EBDA4E944FC9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F78C16FA38123689FFF0FEF9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43C5CF5F161C7CB95A9EC3BF /* APIClient.swift in Sources */,
+				F3875F5F9623A3BAF50D2E3B /* Aircraft.swift in Sources */,
+				576F8353E16CA35932BC94C9 /* AircraftCard.swift in Sources */,
+				EE80524D90B0F54DCCFC088D /* AircraftDatabase.swift in Sources */,
+				C941F673648E744A51F43B0B /* AircraftSelectView.swift in Sources */,
+				B18037E8A228E69FD6BB3EB7 /* AnimatedStatusBadge.swift in Sources */,
+				EC62E9BF67F3A5AA45C87C53 /* AuthManager.swift in Sources */,
+				C26C6D7EE2091913A2344EB4 /* BonanzaA36.swift in Sources */,
+				7CBD5BE12B7756EB3C506866 /* CGEnvelopeChart.swift in Sources */,
+				E236095401D119F76AAF65F7 /* Calculation.swift in Sources */,
+				27F9A2E9A5963C1D56637AED /* Calculator.swift in Sources */,
+				BC16046B007A245B687EB8D3 /* CalculatorView.swift in Sources */,
+				DFDD71B551AAA3F4F63DC0E0 /* Cessna172M.swift in Sources */,
+				EB1597ADC27F3BFF311D623F /* Cherokee6.swift in Sources */,
+				BAACC1E52FD4895D68385A76 /* CompactResultsHeader.swift in Sources */,
+				54293EA9D9EE06B8DE8A0521 /* ContentView.swift in Sources */,
+				6224AAF14387553F13E44749 /* DesignTokens.swift in Sources */,
+				BC92C80B1F5DD46B6AC793C1 /* Envelope.swift in Sources */,
+				32EC5452F13263C35E881954 /* FuelInputRow.swift in Sources */,
+				9F2539283926E52EC0DB5424 /* GlassCard.swift in Sources */,
+				B65ECCA9D6E7910CB7624F7E /* HapticSlider.swift in Sources */,
+				20E5720429A3AC3156AC1C2C /* KeychainHelper.swift in Sources */,
+				5DDA9303F121BDFEE9B63144 /* LandingView.swift in Sources */,
+				F21B6C1010B3517623F01D08 /* LoginView.swift in Sources */,
+				55AEE3C91D1FCA95431AF6E5 /* NavajoChieftain.swift in Sources */,
+				7606CF45FB216FE134F7FA97 /* PreFlightWBApp.swift in Sources */,
+				F25FD3A4D126DAF05DB474ED /* Regulatory.swift in Sources */,
+				64D07F2662FE55EFE1295CED /* ResultsDashboard.swift in Sources */,
+				B49B294FCFFEAD2EDE731529 /* SafetyAlerts.swift in Sources */,
+				3B2FD5CE38A31C2A3CAA3E36 /* SaveScenarioSheet.swift in Sources */,
+				E3B34A51C47FBEEDA1BD6FB2 /* Scenario.swift in Sources */,
+				7DEEC29A30FD383DF13D173D /* ScenariosView.swift in Sources */,
+				99A7EAB79F8AA3EE8B24F6F3 /* SectionHeader.swift in Sources */,
+				2248CA022B2DE6DAF564B74C /* SourcesView.swift in Sources */,
+				8523D35296243AD66CC5C0B4 /* StationInputRow.swift in Sources */,
+				345CCCCC13687F91960DBB20 /* SyncService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EF55AAA19B2BE4F4D6ECD9B0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EDD28C2041B5C9B9DF2EFB8E /* PreFlightWB */;
+			targetProxy = DF7AD72F8359593F582730E4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6586D957C5001B3F0A3FE49E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.valderis.preflightwb.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PreFlightWB.app/PreFlightWB";
+			};
+			name = Debug;
+		};
+		9E73136AA81524CAF0FEB39B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.valderis.preflightwb.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PreFlightWB.app/PreFlightWB";
+			};
+			name = Release;
+		};
+		A2B242EAC662D2BFDD170558 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PreFlight W&B";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AAF1FEC1028E01E04A2A9B7E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4F4Q566K62;
+				INFOPLIST_FILE = PreFlightWB/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.valderis.preflightwb;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		AF036CADFE948E0303F867CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4F4Q566K62;
+				INFOPLIST_FILE = PreFlightWB/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.valderis.preflightwb;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BB8FC4498233110077032C61 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PreFlight W&B";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0825280297A423689181C23D /* Build configuration list for PBXProject "PreFlightWB" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2B242EAC662D2BFDD170558 /* Debug */,
+				BB8FC4498233110077032C61 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		77D7DEFF8122E57EE3663D69 /* Build configuration list for PBXNativeTarget "PreFlightWB" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF036CADFE948E0303F867CE /* Debug */,
+				AAF1FEC1028E01E04A2A9B7E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EE7286B856EF69FFAC87A268 /* Build configuration list for PBXNativeTarget "PreFlightWBTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6586D957C5001B3F0A3FE49E /* Debug */,
+				9E73136AA81524CAF0FEB39B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		04CF71BB6C449EA1C5B17B10 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B338AAE6882019EA004ECA80 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04CF71BB6C449EA1C5B17B10 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1118E2236DDBAE62BC873E80 /* Project object */;
+}
