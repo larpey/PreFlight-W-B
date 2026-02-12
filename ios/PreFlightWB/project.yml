@@ -26,6 +26,8 @@ targets:
       - path: PreFlightWB
         excludes:
           - "**/.DS_Store"
+    entitlements:
+      path: PreFlightWB/PreFlightWB.entitlements
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.valderis.preflightwb
