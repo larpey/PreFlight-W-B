@@ -143,14 +143,22 @@ struct LoginView: View {
     }
 
     private func performAppleSignIn() {
+        guard let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene }).first,
+              let window = windowScene.windows.first else {
+            authManager.error = "Unable to present Apple sign-in."
+            return
+        }
+
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
         let controller = ASAuthorizationController(authorizationRequests: [request])
-        let delegate = AppleSignInDelegate { result in
+        let delegate = AppleSignInDelegate(window: window) { result in
             handleAppleSignIn(result)
         }
         appleSignInDelegate = delegate
         controller.delegate = delegate
+        controller.presentationContextProvider = delegate
         controller.performRequests()
     }
 
@@ -524,11 +532,17 @@ struct LoginView: View {
 
 /// Bridges ASAuthorizationController delegate callbacks to a closure,
 /// avoiding the SwiftUI SignInWithAppleButton which triggers auth checks on render.
-private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
+private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     private let completion: (Result<ASAuthorization, Error>) -> Void
+    private let window: UIWindow
 
-    init(completion: @escaping (Result<ASAuthorization, Error>) -> Void) {
+    init(window: UIWindow, completion: @escaping (Result<ASAuthorization, Error>) -> Void) {
+        self.window = window
         self.completion = completion
+    }
+
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        window
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
