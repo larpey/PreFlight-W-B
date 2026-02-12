@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Modal sheet for saving or naming a scenario.
+/// Styled as a cockpit instrument panel with dark surfaces and glowing readouts.
 struct SaveScenarioSheet: View {
     let defaultName: String
     let onSave: (_ name: String, _ notes: String?) -> Void
@@ -25,10 +26,15 @@ struct SaveScenarioSheet: View {
                 // MARK: - Name Field
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text("Name")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.cockpitLabel)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
 
                     HStack {
                         TextField("Scenario Name", text: $scenarioName)
+                            .foregroundStyle(Color.readoutWhite)
                             .textInputAutocapitalization(.words)
                             .autocorrectionDisabled()
                             .focused($isNameFocused)
@@ -40,33 +46,46 @@ struct SaveScenarioSheet: View {
 
                         Text("\(scenarioName.count)/\(nameMaxLength)")
                             .font(.caption)
-                            .foregroundStyle(Color.pfTextSecondary)
+                            .foregroundStyle(Color.cockpitLabel)
                             .monospacedDigit()
                     }
                     .padding(.horizontal, Spacing.sm)
                     .padding(.vertical, Spacing.sm)
-                    .background(Color.pfSurface)
+                    .background(Color.cockpitSurface)
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.sm)
+                            .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                    )
                 }
 
                 // MARK: - Notes Field
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text("Notes")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.cockpitLabel)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
 
                     TextField("Optional notes", text: $notes, axis: .vertical)
+                        .foregroundStyle(Color.readoutWhite)
                         .lineLimit(3...6)
                         .padding(.horizontal, Spacing.sm)
                         .padding(.vertical, Spacing.sm)
-                        .background(Color.pfSurface)
+                        .background(Color.cockpitSurface)
                         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: CornerRadius.sm)
+                                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                        )
                 }
 
                 Spacer()
             }
             .padding(.horizontal, Spacing.md)
             .padding(.top, Spacing.lg)
-            .background(.ultraThinMaterial)
+            .background(Color.cockpitBackground)
             .navigationTitle("Save Scenario")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -84,7 +103,7 @@ struct SaveScenarioSheet: View {
                         )
                     }
                     .fontWeight(.semibold)
-                    .tint(Color.statusInfo)
+                    .tint(Color.readoutBlue)
                     .disabled(!isNameValid)
                     .opacity(isNameValid ? 1.0 : 0.4)
                 }
@@ -95,6 +114,7 @@ struct SaveScenarioSheet: View {
             }
         }
         .presentationDetents([.medium])
+        .preferredColorScheme(.dark)
     }
 }
 

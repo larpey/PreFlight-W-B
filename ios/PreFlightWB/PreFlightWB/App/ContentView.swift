@@ -38,24 +38,44 @@ struct ContentView: View {
 
     private var splashScreen: some View {
         ZStack {
-            Color.statusInfo.ignoresSafeArea()
+            // Cockpit dark background
+            Color.cockpitBackground.ignoresSafeArea()
+
+            // Radial readoutBlue glow behind the icon
+            RadialGradient(
+                colors: [
+                    Color.readoutBlue.opacity(0.3),
+                    Color.readoutBlue.opacity(0.08),
+                    Color.clear
+                ],
+                center: .center,
+                startRadius: 10,
+                endRadius: 180
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: Spacing.md) {
+                // Icon: 72pt scalemass with readoutBlue and glow shadow
                 Image(systemName: "scalemass")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 72))
+                    .foregroundStyle(Color.readoutBlue)
+                    .shadow(color: Color.readoutBlue.opacity(0.5), radius: 12, y: 0)
+                    .shadow(color: Color.readoutBlue.opacity(0.25), radius: 24, y: 0)
                     .scaleEffect(iconScale)
                     .opacity(iconOpacity)
 
                 VStack(spacing: Spacing.xxs) {
+                    // "PreFlight" in readoutWhite
                     Text("PreFlight")
                         .font(.title2)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.readoutWhite)
+
+                    // "W&B" in readoutBlue
                     Text("W&B")
                         .font(.title2)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(Color.readoutBlue)
                 }
                 .opacity(textOpacity)
             }

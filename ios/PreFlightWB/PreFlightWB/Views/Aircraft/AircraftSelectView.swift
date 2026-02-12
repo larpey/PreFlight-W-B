@@ -49,7 +49,7 @@ struct AircraftSelectView: View {
                 // MARK: - Disclaimer
                 Text("Not for flight planning. Always verify with your aircraft\u{2019}s actual W&B records.")
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.cockpitLabelDim)
                     .multilineTextAlignment(.center)
                     .padding(.top, Spacing.xs)
                     .padding(.bottom, Spacing.xxl)
@@ -57,7 +57,8 @@ struct AircraftSelectView: View {
             .padding(.horizontal, Spacing.md)
             .padding(.top, Spacing.xs)
         }
-        .background(Color.pfBackground)
+        .background(Color.cockpitBackground)
+        .cockpitEnvironment()
         .searchable(text: $searchText, prompt: "Search aircraft")
         .navigationTitle("Select Aircraft")
         .navigationBarTitleDisplayMode(.large)
@@ -66,6 +67,7 @@ struct AircraftSelectView: View {
                 CalculatorView(aircraft: aircraft)
             }
         }
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             // Scenarios toolbar button
             ToolbarItem(placement: .topBarTrailing) {
@@ -111,7 +113,7 @@ struct AircraftSelectView: View {
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
-            .glassCard(cornerRadius: CornerRadius.md, padding: Spacing.md)
+            .instrumentCard()
         }
         .buttonStyle(.plain)
         .simultaneousGesture(TapGesture().onEnded {
@@ -125,16 +127,16 @@ struct AircraftSelectView: View {
         VStack(spacing: Spacing.xs) {
             Image(systemName: "airplane")
                 .font(.system(size: 48))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.cockpitBezel)
                 .padding(.bottom, Spacing.xs)
 
             Text("No aircraft match")
                 .font(.headline)
-                .foregroundStyle(Color.pfText)
+                .foregroundStyle(Color.readoutWhite)
 
             Text("Try a different search")
                 .font(.subheadline)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Button {
                 searchText = ""
@@ -169,15 +171,15 @@ struct AircraftSelectView: View {
                 HStack(spacing: Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Color.statusInfo.opacity(0.15))
+                            .fill(Color.readoutBlue.opacity(0.15))
                             .frame(width: 32, height: 32)
                         Text(String(firstName.prefix(1)).uppercased())
                             .font(.caption.bold())
-                            .foregroundStyle(Color.statusInfo)
+                            .foregroundStyle(Color.readoutBlue)
                     }
                     Text(firstName)
                         .font(.subheadline)
-                        .foregroundStyle(Color.pfText)
+                        .foregroundStyle(Color.readoutWhite)
                 }
             }
         } else if authManager.isGuest {
@@ -189,15 +191,15 @@ struct AircraftSelectView: View {
                 HStack(spacing: Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Color.pfTextSecondary.opacity(0.15))
+                            .fill(Color.cockpitBezel.opacity(0.3))
                             .frame(width: 32, height: 32)
                         Text("G")
                             .font(.caption.bold())
-                            .foregroundStyle(Color.pfTextSecondary)
+                            .foregroundStyle(Color.cockpitLabel)
                     }
                     Text("Guest")
                         .font(.subheadline)
-                        .foregroundStyle(Color.pfTextSecondary)
+                        .foregroundStyle(Color.cockpitLabel)
                 }
             }
         }

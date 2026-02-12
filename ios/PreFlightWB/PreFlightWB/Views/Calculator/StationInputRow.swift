@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Reusable row for a station load input.
-/// Displays station name, arm value, HapticSlider and stepper for weight adjustment.
-/// Tap the weight value to enter a number directly via an alert.
+/// Cockpit-themed station load input row.
+/// Displays station name, arm, glowing weight readout with +/- controls,
+/// a CockpitSlider, and preset chips for seat stations.
+/// Tap the weight readout to enter a number directly via an alert.
 struct StationInputRow: View {
     let station: Station
     @Binding var weight: Double
@@ -16,94 +17,122 @@ struct StationInputRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            // Header: station name + arm
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+
+            // MARK: 1 - Header row
             HStack {
                 Text(station.name)
                     .font(.subheadline)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.readoutWhite)
+
+                Spacer()
+
                 Text("Arm: \(String(format: "%.1f", station.arm.value))\"")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                if let maxWeight = station.maxWeight {
-                    Text("Max \(Int(maxWeight)) lbs")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                    .foregroundStyle(Color.cockpitLabel)
             }
 
-            // Slider
-            HapticSlider(
-                value: $weight,
-                range: 0...(station.maxWeight ?? 400),
-                step: 1,
-                accentColor: .statusInfo
-            )
-
-            // Preset buttons (for seat stations only, not baggage)
-            if isSeatStation {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Spacing.xxs) {
-                        ForEach(passengerPresets, id: \.label) { preset in
-                            Button {
-                                weight = min(preset.weight, station.maxWeight ?? 9999)
-                                Haptic.light()
-                            } label: {
-                                Text(preset.label)
-                                    .font(.caption2)
-                                    .fontWeight(.medium)
-                                    .fixedSize()
-                                    .padding(.horizontal, Spacing.xs)
-                                    .padding(.vertical, 4)
-                                    .background(
-                                        abs(weight - preset.weight) < 1
-                                            ? Color.statusInfo.opacity(0.2)
-                                            : Color.pfSeparator.opacity(0.2)
-                                    )
-                                    .clipShape(Capsule())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.trailing, Spacing.xs)
-                }
-            }
-
-            // Footer: weight value (tappable) + stepper
+            // MARK: 2 - Weight readout + controls row
             HStack {
+                // Tappable weight readout
                 Button {
                     directInputText = "\(Int(weight))"
                     showDirectInput = true
                 } label: {
-                    Text("\(Int(weight)) lbs")
-                        .font(.headline)
-                        .monospacedDigit()
-                        .foregroundStyle(Color.pfText)
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(Int(weight))")
+                            .font(InstrumentFont.readoutSmall)
+                            .monospacedDigit()
+                            .glowingReadout(color: .readoutWhite)
+                            .contentTransition(.numericText())
+
+                        Text("lbs")
+                            .font(.caption)
+                            .foregroundStyle(Color.cockpitLabel)
+                    }
                 }
+                .buttonStyle(.press)
 
                 Spacer()
 
-                Stepper("", value: $weight, in: 0...(station.maxWeight ?? 400), step: 5)
-                    .labelsHidden()
-                    .fixedSize()
-                    .onChange(of: weight) { _, _ in
-                        Haptic.selection()
+                // Max weight label
+                if let maxWeight = station.maxWeight {
+                    Text("/ \(Int(maxWeight))")
+                        .font(.caption)
+                        .foregroundStyle(Color.cockpitLabel)
+                }
+
+                // +/- circle buttons
+                HStack(spacing: Spacing.xs) {
+                    Button {
+                        weight = max(weight - 5, 0)
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.caption.weight(.bold))
+                            .frame(width: Spacing.touchMinimum, height: Spacing.touchMinimum)
+                            .background(Color.cockpitBezel)
+                            .clipShape(Circle())
+                            .foregroundStyle(Color.readoutWhite)
                     }
+                    .buttonStyle(.press)
+
+                    Button {
+                        weight = min(weight + 5, station.maxWeight ?? weight + 5)
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.caption.weight(.bold))
+                            .frame(width: Spacing.touchMinimum, height: Spacing.touchMinimum)
+                            .background(Color.cockpitBezel)
+                            .clipShape(Circle())
+                            .foregroundStyle(Color.readoutWhite)
+                    }
+                    .buttonStyle(.press)
+                }
+            }
+
+            // MARK: 3 - CockpitSlider
+            CockpitSlider(
+                value: $weight,
+                range: 0...(station.maxWeight ?? 400),
+                step: 1,
+                accentColor: .readoutBlue
+            )
+
+            // MARK: 4 - Preset chips (seat stations only)
+            if isSeatStation {
+                HStack(spacing: Spacing.xs) {
+                    ForEach(passengerPresets, id: \.label) { preset in
+                        PresetChip(
+                            label: shortLabel(for: preset.label),
+                            sublabel: "\(Int(preset.weight)) lbs",
+                            isSelected: abs(weight - preset.weight) < 1,
+                            action: {
+                                weight = min(preset.weight, station.maxWeight ?? 9999)
+                            }
+                        )
+                    }
+                }
             }
         }
-        .padding(Spacing.sm)
+        // MARK: 5 - Card chrome
+        .padding(Spacing.md)
         .background {
             // Subtle progress fill
             GeometryReader { geo in
                 RoundedRectangle(cornerRadius: CornerRadius.md)
-                    .fill(Color.statusInfo.opacity(0.04))
+                    .fill(Color.readoutBlue.opacity(0.04))
                     .frame(width: geo.size.width * fraction)
             }
         }
-        .background(Color.pfCard)
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
-        .appShadow(.small)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+        )
         .alert("Enter Weight", isPresented: $showDirectInput) {
             TextField("Weight (lbs)", text: $directInputText)
                 .keyboardType(.decimalPad)
@@ -115,6 +144,20 @@ struct StationInputRow: View {
             Button("Cancel", role: .cancel) { }
         }
     }
+
+    // MARK: - Short Label Extraction
+
+    /// Extracts a short display label from a full preset label.
+    /// "Adult M 195" -> "Adult M", "Child 87" -> "Child", "Empty" -> "Empty"
+    private func shortLabel(for label: String) -> String {
+        let parts = label.split(separator: " ")
+        // If last component is a number, drop it
+        if let last = parts.last, Double(last) != nil {
+            return parts.dropLast().joined(separator: " ")
+        }
+        return label
+    }
+
     // MARK: - Passenger Presets (FAA AC 120-27F)
 
     private struct Preset {
@@ -177,5 +220,5 @@ struct StationInputRow: View {
         weight: .constant(170)
     )
     .padding()
-    .background(Color.pfBackground)
+    .background(Color.cockpitBackground)
 }

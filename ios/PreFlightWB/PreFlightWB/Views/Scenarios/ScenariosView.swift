@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 /// List of saved scenarios with swipe-to-delete and load functionality.
+/// Styled as a cockpit instrument panel with dark surfaces and glowing readouts.
 struct ScenariosView: View {
     @Query(
         filter: #Predicate<SavedScenario> { $0.deletedAt == nil },
@@ -34,6 +35,8 @@ struct ScenariosView: View {
         }
         .navigationTitle("Saved Scenarios")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .cockpitEnvironment()
     }
 
     // MARK: - Empty State
@@ -43,12 +46,12 @@ struct ScenariosView: View {
             ZStack {
                 Image(systemName: "airplane")
                     .font(.system(size: 40))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.cockpitBezel)
                     .offset(x: -8, y: -8)
 
                 Image(systemName: "list.clipboard")
                     .font(.system(size: 36))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.cockpitBezel)
                     .offset(x: 12, y: 12)
             }
             .frame(height: 64)
@@ -56,16 +59,16 @@ struct ScenariosView: View {
 
             Text("No Saved Scenarios")
                 .font(.headline)
-                .foregroundStyle(Color.pfText)
+                .foregroundStyle(Color.readoutWhite)
 
             Text("Save a scenario from the calculator to see it here")
                 .font(.subheadline)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 280)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.pfBackground)
+        .background(Color.cockpitBackground)
     }
 
     // MARK: - Scenario List
@@ -80,6 +83,7 @@ struct ScenariosView: View {
                 Section {
                     ForEach(grouped[aircraftId] ?? [], id: \.id) { scenario in
                         ScenarioRow(scenario: scenario, aircraftName: aircraftName)
+                            .listRowBackground(Color.cockpitSurface)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 Haptic.selection()
@@ -92,6 +96,7 @@ struct ScenariosView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(Color.readoutRed)
                             }
                             .swipeActions(edge: .leading, allowsFullSwipe: false) {
                                 Button {
@@ -100,16 +105,22 @@ struct ScenariosView: View {
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
                                 }
-                                .tint(Color.statusInfo)
+                                .tint(Color.readoutBlue)
                             }
                     }
                 } header: {
                     Text(aircraftName)
                         .textCase(.uppercase)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.cockpitLabel)
+                        .tracking(0.5)
                 }
             }
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color.cockpitBackground)
     }
 
     // MARK: - Actions
@@ -146,18 +157,18 @@ private struct ScenarioRow: View {
             // MARK: - Aircraft Mini-Badge
             HStack(spacing: Spacing.xxs) {
                 Circle()
-                    .fill(Color.statusInfo)
+                    .fill(Color.readoutBlue)
                     .frame(width: 6, height: 6)
                 Text(aircraftName)
                     .font(.caption)
-                    .foregroundStyle(Color.pfTextSecondary)
+                    .foregroundStyle(Color.cockpitLabel)
             }
 
             // MARK: - Scenario Name
             Text(scenario.name)
                 .font(.body.weight(.medium))
                 .fontWeight(.bold)
-                .foregroundStyle(Color.pfText)
+                .foregroundStyle(Color.readoutWhite)
 
             // MARK: - Weight / Fuel Summary
             HStack(spacing: Spacing.xxs) {
@@ -177,20 +188,20 @@ private struct ScenarioRow: View {
                 }
             }
             .font(.caption)
-            .foregroundStyle(Color.pfTextSecondary)
+            .foregroundStyle(Color.cockpitLabel)
 
             // MARK: - Notes Preview
             if let notes = scenario.notes, !notes.isEmpty {
                 Text(notes)
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.cockpitLabelDim)
                     .lineLimit(1)
             }
 
             // MARK: - Relative Timestamp
             Text(Self.relativeFormatter.localizedString(for: scenario.updatedAt, relativeTo: .now))
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.cockpitLabelDim)
         }
         .padding(.vertical, Spacing.xxs)
     }

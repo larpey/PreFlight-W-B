@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Reusable row for fuel tank input.
-/// Displays tank name, arm, HapticSlider for gallons, computed weight,
-/// and a "Full" quick-action button. Tap the gallons value for direct input.
+/// Cockpit-themed fuel tank input row.
+/// Displays tank name, arm, glowing gallon/weight readout, +/- buttons,
+/// CockpitSlider, and preset chips (Full / Tabs / Half / Empty).
+/// Tap the readout to enter a value directly via alert.
 struct FuelInputRow: View {
     let tank: FuelTank
     @Binding var gallons: Double
@@ -20,81 +21,143 @@ struct FuelInputRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            // Header
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+
+            // MARK: 1 — Header
             HStack {
                 Text(tank.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.readoutWhite)
+                Spacer()
                 Text("Arm: \(String(format: "%.1f", tank.arm.value))\"")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text("Max \(String(format: "%.0f", tank.maxGallons.value)) gal")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.cockpitLabel)
             }
 
-            // Slider
-            HapticSlider(
-                value: $gallons,
-                range: 0...tank.maxGallons.value,
-                step: 0.5,
-                accentColor: .statusInfo
-            )
-
-            // Footer
+            // MARK: 2 — Readout + controls
             HStack {
+                // Tappable readout (direct input)
                 Button {
                     directInputText = String(format: "%.1f", gallons)
                     showDirectInput = true
                 } label: {
-                    HStack(spacing: Spacing.xxs) {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text(String(format: "%.1f", gallons))
-                            .font(.headline)
+                            .font(InstrumentFont.readoutSmall)
                             .monospacedDigit()
+                            .glowingReadout(color: .readoutBlue)
+                            .contentTransition(.numericText())
+
                         Text("gal")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text("(\(Int(weight)) lbs)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.cockpitLabel)
+
+                        Text("=")
+                            .font(.caption)
+                            .foregroundStyle(Color.cockpitLabelDim)
+
+                        Text("\(Int(weight))")
+                            .font(.subheadline.weight(.semibold).monospacedDigit())
+                            .foregroundStyle(Color.readoutWhite)
+
+                        Text("lbs")
+                            .font(.caption)
+                            .foregroundStyle(Color.cockpitLabel)
                     }
-                    .foregroundStyle(Color.pfText)
                 }
+                .buttonStyle(.plain)
 
                 Spacer()
 
-                // Full button
-                Button("Full") {
-                    gallons = tank.maxGallons.value
-                    Haptic.medium()
-                }
-                .font(.caption.weight(.medium))
-                .padding(.horizontal, Spacing.sm)
-                .padding(.vertical, Spacing.xxs)
-                .background(Color.statusInfo.opacity(0.12))
-                .clipShape(Capsule())
-
-                Stepper("", value: $gallons, in: 0...tank.maxGallons.value, step: 1)
-                    .labelsHidden()
-                    .fixedSize()
-                    .onChange(of: gallons) { _, _ in
-                        Haptic.selection()
+                // +/- circle buttons
+                HStack(spacing: Spacing.xs) {
+                    Button {
+                        gallons = max(0, gallons - 1)
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(Color.readoutWhite)
+                            .frame(width: Spacing.touchMinimum, height: Spacing.touchMinimum)
+                            .background(Color.cockpitBezel)
+                            .clipShape(Circle())
                     }
+                    .buttonStyle(.press)
+
+                    Button {
+                        gallons = min(tank.maxGallons.value, gallons + 1)
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(Color.readoutWhite)
+                            .frame(width: Spacing.touchMinimum, height: Spacing.touchMinimum)
+                            .background(Color.cockpitBezel)
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.press)
+                }
+            }
+
+            // MARK: 3 — Slider
+            CockpitSlider(
+                value: $gallons,
+                range: 0...tank.maxGallons.value,
+                step: 0.5,
+                accentColor: .readoutBlue
+            )
+
+            // MARK: 4 — Preset chips
+            HStack(spacing: Spacing.xs) {
+                PresetChip(
+                    label: "Full",
+                    sublabel: "\(Int(tank.maxGallons.value)) gal",
+                    isSelected: gallons >= tank.maxGallons.value - 0.1
+                ) {
+                    gallons = tank.maxGallons.value
+                }
+
+                PresetChip(
+                    label: "Tabs",
+                    sublabel: "\(Int(tank.maxGallons.value * 0.75)) gal",
+                    isSelected: abs(gallons - tank.maxGallons.value * 0.75) < 0.5
+                ) {
+                    gallons = (tank.maxGallons.value * 0.75 / 0.5).rounded() * 0.5
+                }
+
+                PresetChip(
+                    label: "Half",
+                    sublabel: "\(Int(tank.maxGallons.value * 0.5)) gal",
+                    isSelected: abs(gallons - tank.maxGallons.value * 0.5) < 0.5
+                ) {
+                    gallons = (tank.maxGallons.value * 0.5 / 0.5).rounded() * 0.5
+                }
+
+                PresetChip(
+                    label: "Empty",
+                    sublabel: "0 gal",
+                    isSelected: gallons < 0.1
+                ) {
+                    gallons = 0
+                }
             }
         }
-        .padding(Spacing.sm)
+        // MARK: 5 — Card chrome
+        .padding(Spacing.md)
         .background {
+            // Subtle progress fill
             GeometryReader { geo in
                 RoundedRectangle(cornerRadius: CornerRadius.md)
-                    .fill(Color.statusInfo.opacity(0.04))
+                    .fill(Color.readoutBlue.opacity(0.04))
                     .frame(width: geo.size.width * fraction)
             }
         }
-        .background(Color.pfCard)
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
-        .appShadow(.small)
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+        )
         .alert("Enter Fuel", isPresented: $showDirectInput) {
             TextField("Gallons", text: $directInputText)
                 .keyboardType(.decimalPad)
@@ -155,5 +218,5 @@ struct FuelInputRow: View {
         gallons: .constant(21.0)
     )
     .padding()
-    .background(Color.pfBackground)
+    .background(Color.cockpitBackground)
 }
