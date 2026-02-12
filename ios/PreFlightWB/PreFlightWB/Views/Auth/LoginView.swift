@@ -118,17 +118,40 @@ struct LoginView: View {
 
     // MARK: - Apple Sign-In Button
 
+    @State private var appleSignInDelegate: AppleSignInDelegate?
+
     private var appleSignInButton: some View {
-        SignInWithAppleButton(.signIn) { request in
-            request.requestedScopes = [.fullName, .email]
-        } onCompletion: { result in
-            handleAppleSignIn(result)
+        Button {
+            performAppleSignIn()
+        } label: {
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: "apple.logo")
+                    .font(.title3)
+                Text("Sign in with Apple")
+                    .font(.body)
+                    .fontWeight(.medium)
+            }
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
         }
-        .signInWithAppleButtonStyle(.white)
-        .frame(height: 50)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+        .buttonStyle(.plain)
         .disabled(isLoading)
         .opacity(isLoading ? 0.6 : 1)
+    }
+
+    private func performAppleSignIn() {
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        let delegate = AppleSignInDelegate { result in
+            handleAppleSignIn(result)
+        }
+        appleSignInDelegate = delegate
+        controller.delegate = delegate
+        controller.performRequests()
     }
 
     // MARK: - Google Sign-In Button
@@ -494,5 +517,25 @@ struct LoginView: View {
         } catch {
             // Error is already set on authManager
         }
+    }
+}
+
+// MARK: - Apple Sign-In Delegate
+
+/// Bridges ASAuthorizationController delegate callbacks to a closure,
+/// avoiding the SwiftUI SignInWithAppleButton which triggers auth checks on render.
+private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
+    private let completion: (Result<ASAuthorization, Error>) -> Void
+
+    init(completion: @escaping (Result<ASAuthorization, Error>) -> Void) {
+        self.completion = completion
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        completion(.success(authorization))
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        completion(.failure(error))
     }
 }
