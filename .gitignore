@@ -18,3 +18,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
