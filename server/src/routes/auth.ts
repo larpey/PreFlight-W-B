@@ -2,6 +2,7 @@ import { Router } from 'express';
 import pool from '../db.js';
 import { signToken } from '../auth/jwt.js';
 import { verifyGoogleToken } from '../auth/google.js';
+import { verifyAppleToken } from '../auth/apple.js';
 import { sendVerificationCode, verifyCode } from '../auth/magicLink.js';
 import { requireAuth } from '../auth/middleware.js';
 
@@ -40,6 +41,53 @@ router.post('/google', async (req, res) => {
   } catch (err) {
     console.error('Google auth error:', err);
     res.status(401).json({ error: 'Invalid Google token' });
+  }
+});
+
+// Exchange Apple identity token for JWT
+router.post('/apple', async (req, res) => {
+  try {
+    const { identityToken, fullName } = req.body;
+    if (!identityToken) {
+      res.status(400).json({ error: 'Missing identityToken' });
+      return;
+    }
+
+    const appleUser = await verifyAppleToken(identityToken);
+
+    const email = appleUser.email;
+    if (!email) {
+      res.status(400).json({ error: 'Apple token missing email' });
+      return;
+    }
+
+    // Build name from client-provided fullName (Apple only sends on first auth)
+    const name = fullName
+      ? [fullName.givenName, fullName.familyName].filter(Boolean).join(' ') || null
+      : null;
+
+    // Upsert user — match on email, link apple_user_id
+    const result = await pool.query(
+      `INSERT INTO users (email, name, auth_provider, apple_user_id)
+       VALUES ($1, $2, 'apple', $3)
+       ON CONFLICT (email) DO UPDATE SET
+         apple_user_id = COALESCE(EXCLUDED.apple_user_id, users.apple_user_id),
+         name = COALESCE(EXCLUDED.name, users.name),
+         last_login = now()
+       RETURNING id, email, name, avatar_url`,
+      [email, name, appleUser.appleUserId]
+    );
+
+    const user = result.rows[0];
+    const token = signToken({ userId: user.id, email: user.email });
+
+    res.json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatar_url },
+    });
+  } catch (err) {
+    console.error('Apple auth error:', err);
+    res.status(401).json({ error: 'Invalid Apple identity token' });
   }
 });
 

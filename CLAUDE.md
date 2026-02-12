@@ -29,15 +29,14 @@ npm run dev            # Dev server on localhost:3001
 scp -r server/dist/* ubuntu@15.204.227.100:/home/ubuntu/preflight-api/dist/
 ssh ubuntu@15.204.227.100 "cd /home/ubuntu/preflight-api && pm2 restart preflight-api"
 
-# Frontend: copy built files via temp dir (needs sudo for /var/www)
-scp -r dist/* ubuntu@15.204.227.100:/tmp/preflight-frontend/
-ssh ubuntu@15.204.227.100 "sudo cp -r /tmp/preflight-frontend/* /var/www/preflight/ && rm -rf /tmp/preflight-frontend"
+# Frontend: copy built files to nginx root
+scp -r dist/* ubuntu@15.204.227.100:/home/ubuntu/preflight-wb/
 ```
 
 ### VPS Access
 - SSH: `ssh ubuntu@15.204.227.100` (NOT root)
 - API: `https://api.preflight.valderis.com` → nginx → localhost:3001
-- Frontend: `https://preflight.valderis.com` → nginx → /var/www/preflight
+- Frontend: `https://preflight.valderis.com` → nginx → /home/ubuntu/preflight-wb
 - PM2 logs: `ssh ubuntu@15.204.227.100 "pm2 logs preflight-api --lines 50"`
 
 ## Architecture
