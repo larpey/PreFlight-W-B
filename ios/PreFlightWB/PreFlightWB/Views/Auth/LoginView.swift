@@ -118,48 +118,17 @@ struct LoginView: View {
 
     // MARK: - Apple Sign-In Button
 
-    @State private var appleSignInDelegate: AppleSignInDelegate?
-
     private var appleSignInButton: some View {
-        Button {
-            performAppleSignIn()
-        } label: {
-            HStack(spacing: Spacing.sm) {
-                Image(systemName: "apple.logo")
-                    .font(.title3)
-                Text("Sign in with Apple")
-                    .font(.body)
-                    .fontWeight(.medium)
-            }
-            .foregroundStyle(.black)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
-        }
-        .buttonStyle(.plain)
-        .disabled(isLoading)
-        .opacity(isLoading ? 0.6 : 1)
-    }
-
-    private func performAppleSignIn() {
-        guard let windowScene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene }).first,
-              let window = windowScene.windows.first else {
-            authManager.error = "Unable to present Apple sign-in."
-            return
-        }
-
-        let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName, .email]
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        let delegate = AppleSignInDelegate(window: window) { result in
+        SignInWithAppleButton(.signIn) { request in
+            request.requestedScopes = [.fullName, .email]
+        } onCompletion: { result in
             handleAppleSignIn(result)
         }
-        appleSignInDelegate = delegate
-        controller.delegate = delegate
-        controller.presentationContextProvider = delegate
-        controller.performRequests()
+        .signInWithAppleButtonStyle(.white)
+        .frame(height: 50)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+        .disabled(isLoading)
+        .opacity(isLoading ? 0.6 : 1)
     }
 
     // MARK: - Google Sign-In Button
@@ -522,31 +491,5 @@ struct LoginView: View {
         } catch {
             // Error is already set on authManager
         }
-    }
-}
-
-// MARK: - Apple Sign-In Delegate
-
-/// Bridges ASAuthorizationController delegate callbacks to a closure,
-/// avoiding the SwiftUI SignInWithAppleButton which triggers auth checks on render.
-private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
-    private let completion: (Result<ASAuthorization, Error>) -> Void
-    private let window: UIWindow
-
-    init(window: UIWindow, completion: @escaping (Result<ASAuthorization, Error>) -> Void) {
-        self.window = window
-        self.completion = completion
-    }
-
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        window
-    }
-
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        completion(.success(authorization))
-    }
-
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        completion(.failure(error))
     }
 }
