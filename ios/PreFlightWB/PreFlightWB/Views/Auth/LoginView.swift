@@ -44,20 +44,20 @@ struct LoginView: View {
                     // MARK: - Header Icon
                     Image(systemName: "scalemass")
                         .font(.system(size: 48))
-                        .foregroundStyle(.readoutBlue)
-                        .shadow(color: .readoutBlue.opacity(0.4), radius: 16)
+                        .foregroundStyle(Color.readoutBlue)
+                        .shadow(color: Color.readoutBlue.opacity(0.4), radius: 16)
                         .padding(.bottom, Spacing.md)
 
                     // MARK: - Title
                     Text("Sign In")
                         .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundStyle(.readoutWhite)
+                        .foregroundStyle(Color.readoutWhite)
                         .padding(.bottom, Spacing.xs)
 
                     // MARK: - Subtitle
                     Text("Sign in to save scenarios and sync across your devices.")
                         .font(.subheadline)
-                        .foregroundStyle(.cockpitLabel)
+                        .foregroundStyle(Color.cockpitLabel)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: 300)
                         .padding(.bottom, Spacing.xl)
@@ -196,7 +196,7 @@ struct LoginView: View {
                             .font(.body)
                             .fontWeight(.medium)
                     }
-                    .foregroundStyle(.readoutWhite)
+                    .foregroundStyle(Color.readoutWhite)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(Color.cockpitBezel.opacity(0.6))
@@ -236,7 +236,7 @@ struct LoginView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .font(.body)
-                .foregroundStyle(.readoutWhite)
+                .foregroundStyle(Color.readoutWhite)
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, 14)
                 .background(Color.cockpitSurface)
@@ -284,11 +284,11 @@ struct LoginView: View {
         VStack(spacing: Spacing.sm) {
             Text("We sent a 6-digit code to ")
                 .font(.subheadline)
-                .foregroundStyle(.cockpitLabel)
+                .foregroundStyle(Color.cockpitLabel)
             + Text(email)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(.readoutWhite)
+                .foregroundStyle(Color.readoutWhite)
 
             // Individual digit boxes
             ZStack {
@@ -375,7 +375,7 @@ struct LoginView: View {
 
         return Text(character)
             .font(.system(size: 22, weight: .bold, design: .monospaced))
-            .foregroundStyle(.readoutWhite)
+            .foregroundStyle(Color.readoutWhite)
             .frame(width: 48, height: 48)
             .background(Color.cockpitSurfaceElevated)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
