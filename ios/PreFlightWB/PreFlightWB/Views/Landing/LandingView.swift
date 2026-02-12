@@ -19,31 +19,36 @@ struct LandingView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // MARK: - Hero Header
-                    heroSection
+            ZStack {
+                Color.cockpitBackground
+                    .ignoresSafeArea()
 
-                    // MARK: - Content
-                    VStack(spacing: Spacing.lg) {
-                        // Safety Disclaimer
-                        disclaimerSection
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // MARK: - Hero Header
+                        heroSection
 
-                        // Features List
-                        featuresSection
+                        // MARK: - Content
+                        VStack(spacing: Spacing.lg) {
+                            // Safety Disclaimer
+                            disclaimerSection
 
-                        // CTA Button
-                        ctaSection
+                            // Features List
+                            featuresSection
 
-                        // Footer
-                        footerSection
+                            // CTA Button
+                            ctaSection
+
+                            // Footer
+                            footerSection
+                        }
+                        .padding(.horizontal, Spacing.lg - 4) // 20pt
+                        .padding(.bottom, Spacing.xxl - 8) // 40pt
                     }
-                    .padding(.horizontal, Spacing.lg - 4) // 20pt
-                    .padding(.bottom, Spacing.xxl - 8) // 40pt
                 }
+                .ignoresSafeArea(edges: .top)
             }
-            .background(Color.cockpitBackground)
-            .ignoresSafeArea(edges: .top)
+            .preferredColorScheme(.dark)
         }
     }
 
