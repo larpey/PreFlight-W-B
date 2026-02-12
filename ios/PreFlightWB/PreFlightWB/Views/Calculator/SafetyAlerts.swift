@@ -76,7 +76,7 @@ private struct WarningCard: View {
                     Text(remediation)
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundStyle(.statusInfo)
+                        .foregroundStyle(Color.statusInfo)
                 }
 
                 if let ref = warning.regulatoryRef {
