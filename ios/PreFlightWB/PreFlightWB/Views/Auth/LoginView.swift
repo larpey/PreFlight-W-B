@@ -67,8 +67,10 @@ struct LoginView: View {
                         // Apple Sign-In
                         appleSignInButton
 
-                        // Google Sign-In
-                        googleSignInButton
+                        // Google Sign-In (only if configured)
+                        if isGoogleConfigured {
+                            googleSignInButton
+                        }
 
                         // Divider
                         orDivider
@@ -427,7 +429,16 @@ struct LoginView: View {
         }
     }
 
+    /// Whether Google Sign-In is configured with a client ID in Info.plist.
+    private var isGoogleConfigured: Bool {
+        Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String != nil
+    }
+
     private func handleGoogleSignIn() {
+        guard isGoogleConfigured else {
+            authManager.error = "Google sign-in is not configured."
+            return
+        }
         Task {
             isLoading = true
             defer { isLoading = false }
