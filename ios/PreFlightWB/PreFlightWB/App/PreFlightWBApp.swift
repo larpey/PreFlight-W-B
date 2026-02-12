@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct PreFlightWBApp: App {
     @State private var authManager = AuthManager()
+    @Environment(\.scenePhase) private var scenePhase
 
     let modelContainer: ModelContainer
 
@@ -21,7 +22,27 @@ struct PreFlightWBApp: App {
         WindowGroup {
             ContentView()
                 .environment(authManager)
+                .onAppear {
+                    let container = modelContainer
+                    authManager.onAuthenticated = {
+                        await syncQuietly(container: container)
+                    }
+                }
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active, authManager.isAuthenticated {
+                Task { @MainActor in
+                    await syncQuietly(container: modelContainer)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func syncQuietly(container: ModelContainer) async {
+        let context = container.mainContext
+        let syncService = SyncService(modelContext: context)
+        _ = try? await syncService.syncScenarios()
     }
 }

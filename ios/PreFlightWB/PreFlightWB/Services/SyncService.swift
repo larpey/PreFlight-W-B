@@ -8,8 +8,8 @@ private struct SyncChange: Encodable {
     let id: String
     let aircraftId: String
     let name: String
-    let stationLoads: [[String: Double]]
-    let fuelLoads: [[String: Double]]
+    let stationLoads: [StationLoad]
+    let fuelLoads: [FuelLoad]
     let notes: String?
     let updatedAt: String
     let deletedAt: String?
@@ -26,8 +26,8 @@ private struct ServerScenario: Decodable {
     let id: String
     let aircraftId: String
     let name: String
-    let stationLoads: [[String: Double]]
-    let fuelLoads: [[String: Double]]
+    let stationLoads: [StationLoad]
+    let fuelLoads: [FuelLoad]
     let notes: String?
     let updatedAt: String
     let deletedAt: String?
@@ -77,12 +77,8 @@ final class SyncService {
                 id: scenario.id,
                 aircraftId: scenario.aircraftId,
                 name: scenario.name,
-                stationLoads: scenario.stationLoads.map {
-                    ["stationId_weight": 0, $0.stationId: $0.weight]
-                },
-                fuelLoads: scenario.fuelLoads.map {
-                    ["tankId_gallons": 0, $0.tankId: $0.gallons]
-                },
+                stationLoads: scenario.stationLoads,
+                fuelLoads: scenario.fuelLoads,
                 notes: scenario.notes,
                 updatedAt: iso.string(from: scenario.updatedAt),
                 deletedAt: scenario.deletedAt.map { iso.string(from: $0) }
@@ -132,16 +128,8 @@ final class SyncService {
             if !existing.dirty {
                 existing.aircraftId = server.aircraftId
                 existing.name = server.name
-                existing.stationLoads = server.stationLoads.compactMap { dict -> StationLoad? in
-                    guard let stationId = dict.keys.first(where: { $0 != "stationId_weight" }),
-                          let weight = dict[stationId] else { return nil }
-                    return StationLoad(stationId: stationId, weight: weight)
-                }
-                existing.fuelLoads = server.fuelLoads.compactMap { dict -> FuelLoad? in
-                    guard let tankId = dict.keys.first(where: { $0 != "tankId_gallons" }),
-                          let gallons = dict[tankId] else { return nil }
-                    return FuelLoad(tankId: tankId, gallons: gallons)
-                }
+                existing.stationLoads = server.stationLoads
+                existing.fuelLoads = server.fuelLoads
                 existing.notes = server.notes
                 existing.updatedAt = iso.date(from: server.updatedAt) ?? .now
                 existing.deletedAt = server.deletedAt.flatMap { iso.date(from: $0) }
@@ -152,16 +140,8 @@ final class SyncService {
                 id: server.id,
                 aircraftId: server.aircraftId,
                 name: server.name,
-                stationLoads: server.stationLoads.compactMap { dict -> StationLoad? in
-                    guard let stationId = dict.keys.first(where: { $0 != "stationId_weight" }),
-                          let weight = dict[stationId] else { return nil }
-                    return StationLoad(stationId: stationId, weight: weight)
-                },
-                fuelLoads: server.fuelLoads.compactMap { dict -> FuelLoad? in
-                    guard let tankId = dict.keys.first(where: { $0 != "tankId_gallons" }),
-                          let gallons = dict[tankId] else { return nil }
-                    return FuelLoad(tankId: tankId, gallons: gallons)
-                },
+                stationLoads: server.stationLoads,
+                fuelLoads: server.fuelLoads,
                 notes: server.notes,
                 createdAt: iso.date(from: server.updatedAt) ?? .now,
                 updatedAt: iso.date(from: server.updatedAt) ?? .now,

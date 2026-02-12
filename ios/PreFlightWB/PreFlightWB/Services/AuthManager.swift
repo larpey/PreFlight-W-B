@@ -27,6 +27,9 @@ final class AuthManager {
     /// Non-nil when the most recent auth action failed.
     var error: String?
 
+    /// Called after successful authentication to trigger sync.
+    var onAuthenticated: (() async -> Void)?
+
     // MARK: - Keys
 
     private static let guestKey = "preflight_guest_mode"
@@ -56,6 +59,7 @@ final class AuthManager {
 
         currentUser = user
         isAuthenticated = true
+        await onAuthenticated?()
 
         // Check Apple credential state if session was established via Apple Sign-In
         if UserDefaults.standard.bool(forKey: Self.appleAuthKey),
@@ -94,6 +98,7 @@ final class AuthManager {
             currentUser = response.user
             isAuthenticated = true
             isGuest = false
+            await onAuthenticated?()
         } catch {
             self.error = "Google sign-in failed. Please try again."
         }
@@ -135,6 +140,7 @@ final class AuthManager {
             isGuest = false
             UserDefaults.standard.set(true, forKey: Self.appleAuthKey)
             UserDefaults.standard.set(appleUserId, forKey: Self.appleUserIdKey)
+            await onAuthenticated?()
         } catch {
             self.error = "Apple sign-in failed. Please try again."
         }
@@ -183,6 +189,7 @@ final class AuthManager {
             currentUser = response.user
             isAuthenticated = true
             isGuest = false
+            await onAuthenticated?()
         } catch {
             self.error = "Invalid or expired code. Please try again."
             throw error

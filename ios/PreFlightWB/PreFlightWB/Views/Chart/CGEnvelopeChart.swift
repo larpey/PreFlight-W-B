@@ -9,11 +9,16 @@ struct CGEnvelopeChart: View {
     let currentCG: Double
     let isWithinEnvelope: Bool
     let maxGrossWeight: Double
+    var landingWeight: Double? = nil
+    var landingCG: Double? = nil
+    var isLandingWithinEnvelope: Bool? = nil
 
     // MARK: - Animated State
 
     @State private var animatedWeight: Double = 0
     @State private var animatedCG: Double = 0
+    @State private var animatedLandingWeight: Double = 0
+    @State private var animatedLandingCG: Double = 0
     @Environment(\.colorScheme) var colorScheme
 
     // MARK: - Data Bounds
@@ -188,6 +193,47 @@ struct CGEnvelopeChart: View {
                 ))
                 context.fill(innerDot, with: .color(pointColor))
 
+                // ----- Landing point and trajectory (if fuel burn specified) -----
+                if let _ = landingWeight, let _ = landingCG {
+                    let lx = toCGx(animatedLandingCG)
+                    let ly = toWeightY(animatedLandingWeight)
+                    let landingInEnvelope = isLandingWithinEnvelope ?? true
+                    let landingColor: Color = landingInEnvelope ? .statusInfo : .statusDanger
+
+                    // Trajectory line from takeoff to landing
+                    var trajectoryPath = Path()
+                    trajectoryPath.move(to: CGPoint(x: cx, y: cy))
+                    trajectoryPath.addLine(to: CGPoint(x: lx, y: ly))
+                    context.stroke(
+                        trajectoryPath,
+                        with: .color(landingColor.opacity(0.6)),
+                        style: StrokeStyle(lineWidth: 2, dash: [6, 4])
+                    )
+
+                    // Arrow indicator at landing point
+                    let landingBorder = Path(ellipseIn: CGRect(
+                        x: lx - 5, y: ly - 5, width: 10, height: 10
+                    ))
+                    context.fill(landingBorder, with: .color(pointBorderColor))
+
+                    let landingDot = Path(ellipseIn: CGRect(
+                        x: lx - 4, y: ly - 4, width: 8, height: 8
+                    ))
+                    context.fill(landingDot, with: .color(landingColor))
+
+                    // Landing label
+                    let landingLabelX = lx > paddingLeft + plotW * 0.7 ? lx - 18 : lx + 18
+                    let landingAnchor: UnitPoint = lx > paddingLeft + plotW * 0.7 ? .trailing : .leading
+                    let ldgLabel = Text("Ldg \(Int(animatedLandingWeight)) lbs")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(landingColor)
+                    context.draw(
+                        context.resolve(ldgLabel),
+                        at: CGPoint(x: landingLabelX, y: ly + 8),
+                        anchor: landingAnchor
+                    )
+                }
+
                 // ----- Point label with collision avoidance -----
                 let pointInRightZone = cx > paddingLeft + plotW * 0.7
                 let labelX = pointInRightZone ? cx - 18 : cx + 18
@@ -254,7 +300,10 @@ struct CGEnvelopeChart: View {
 
             // Legend row
             HStack(spacing: Spacing.md) {
-                legendItem(color: .statusSafe, text: "Within Envelope")
+                legendItem(color: .statusSafe, text: "Takeoff")
+                if landingWeight != nil {
+                    legendItem(color: .statusInfo, text: "Landing", isDashed: true)
+                }
                 legendItem(color: .statusDanger, text: "Outside")
                 legendItem(color: .statusDanger.opacity(0.4), text: "Max Gross", isDashed: true)
             }
@@ -267,6 +316,8 @@ struct CGEnvelopeChart: View {
         .onAppear {
             animatedWeight = currentWeight
             animatedCG = currentCG
+            animatedLandingWeight = landingWeight ?? currentWeight
+            animatedLandingCG = landingCG ?? currentCG
         }
         .onChange(of: currentWeight) { _, newValue in
             withAnimation(.interpolatingSpring(stiffness: 200, damping: 20)) {
@@ -276,6 +327,16 @@ struct CGEnvelopeChart: View {
         .onChange(of: currentCG) { _, newValue in
             withAnimation(.interpolatingSpring(stiffness: 200, damping: 20)) {
                 animatedCG = newValue
+            }
+        }
+        .onChange(of: landingWeight) { _, newValue in
+            withAnimation(.interpolatingSpring(stiffness: 200, damping: 20)) {
+                animatedLandingWeight = newValue ?? currentWeight
+            }
+        }
+        .onChange(of: landingCG) { _, newValue in
+            withAnimation(.interpolatingSpring(stiffness: 200, damping: 20)) {
+                animatedLandingCG = newValue ?? currentCG
             }
         }
     }
