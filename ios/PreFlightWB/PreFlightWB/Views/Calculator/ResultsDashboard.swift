@@ -5,6 +5,7 @@ import SwiftUI
 struct ResultsDashboard: View {
     let result: CalculationResult
     let aircraft: Aircraft
+    var landingResult: LandingResult? = nil
 
     /// Tracks the previous within-limits state for haptic feedback on transitions.
     @State private var wasWithinLimits: Bool?
@@ -132,6 +133,53 @@ struct ResultsDashboard: View {
                     value: "\(formatted(result.cgAftMargin, decimals: 1))\"",
                     isPositive: result.cgAftMargin >= 0
                 )
+            }
+
+            // Landing section (if fuel burn specified)
+            if let landing = landingResult {
+                Divider().opacity(0.3)
+
+                HStack {
+                    Image(systemName: "airplane.arrival")
+                        .font(.caption)
+                        .foregroundStyle(Color.pfTextSecondary)
+                    Text("Landing")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.pfTextSecondary)
+                    Spacer()
+                    Text("\(formatted(landing.landingWeight, decimals: 0)) lbs")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(landing.isWithinWeightLimit ? .primary : Color.statusDanger)
+                        .monospacedDigit()
+                    Text("CG \(formatted(landing.landingCG, decimals: 2))\"")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(landing.isWithinCGEnvelope ? .primary : Color.statusDanger)
+                        .monospacedDigit()
+                }
+
+                HStack(spacing: Spacing.xs) {
+                    marginCard(
+                        icon: "fuelpump",
+                        label: "Burn",
+                        value: "-\(formatted(landing.fuelBurnGallons, decimals: 0)) gal",
+                        isPositive: true
+                    )
+                    marginCard(
+                        icon: "scalemass",
+                        label: "Ldg Wt",
+                        value: "\(formatted(landing.landingWeight, decimals: 0))",
+                        isPositive: landing.isWithinWeightLimit
+                    )
+                    marginCard(
+                        icon: "scope",
+                        label: "Ldg CG",
+                        value: "\(formatted(landing.landingCG, decimals: 1))\"",
+                        isPositive: landing.isWithinCGEnvelope
+                    )
+                }
             }
         }
         .padding(Spacing.md)

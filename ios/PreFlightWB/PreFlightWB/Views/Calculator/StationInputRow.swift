@@ -41,6 +41,33 @@ struct StationInputRow: View {
                 accentColor: .statusInfo
             )
 
+            // Preset buttons (for seat stations only, not baggage)
+            if isSeatStation {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Spacing.xxs) {
+                        ForEach(passengerPresets, id: \.label) { preset in
+                            Button {
+                                weight = min(preset.weight, station.maxWeight ?? 9999)
+                                Haptic.light()
+                            } label: {
+                                Text(preset.label)
+                                    .font(.caption2)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, Spacing.xs)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        abs(weight - preset.weight) < 1
+                                            ? Color.statusInfo.opacity(0.2)
+                                            : Color.pfSeparator.opacity(0.2)
+                                    )
+                                    .clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+
             // Footer: weight value (tappable) + stepper
             HStack {
                 Button {
@@ -85,6 +112,37 @@ struct StationInputRow: View {
             }
             Button("Cancel", role: .cancel) { }
         }
+    }
+    // MARK: - Passenger Presets (FAA AC 120-27F)
+
+    private struct Preset {
+        let label: String
+        let weight: Double
+    }
+
+    /// Whether this station is a seat (not baggage/cargo).
+    private var isSeatStation: Bool {
+        let id = station.id.lowercased()
+        return id.contains("seat") || id.contains("pilot") || id.contains("pax")
+    }
+
+    /// Winter = Nov through Mar, Summer = Apr through Oct.
+    private var isWinter: Bool {
+        let month = Calendar.current.component(.month, from: Date())
+        return month >= 11 || month <= 3
+    }
+
+    /// FAA AC 120-27F standard passenger weights.
+    private var passengerPresets: [Preset] {
+        let maleWeight: Double = isWinter ? 195 : 190
+        let femaleWeight: Double = isWinter ? 175 : 170
+        let childWeight: Double = isWinter ? 87 : 82
+        return [
+            Preset(label: "Adult M \(Int(maleWeight))", weight: maleWeight),
+            Preset(label: "Adult F \(Int(femaleWeight))", weight: femaleWeight),
+            Preset(label: "Child \(Int(childWeight))", weight: childWeight),
+            Preset(label: "Empty", weight: 0),
+        ]
     }
 }
 

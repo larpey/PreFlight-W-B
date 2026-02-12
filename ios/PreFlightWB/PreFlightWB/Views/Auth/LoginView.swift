@@ -1,5 +1,6 @@
 import SwiftUI
 import AuthenticationServices
+import GoogleSignIn
 
 struct LoginView: View {
     @Environment(AuthManager.self) private var authManager
@@ -425,7 +426,26 @@ struct LoginView: View {
         Task {
             isLoading = true
             defer { isLoading = false }
-            await authManager.loginWithGoogle(idToken: "")
+
+            guard let windowScene = UIApplication.shared.connectedScenes
+                    .compactMap({ $0 as? UIWindowScene }).first,
+                  let rootVC = windowScene.windows.first?.rootViewController else {
+                authManager.error = "Unable to present Google sign-in."
+                return
+            }
+
+            do {
+                let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+                guard let idToken = result.user.idToken?.tokenString else {
+                    authManager.error = "Google sign-in failed. No ID token received."
+                    return
+                }
+                await authManager.loginWithGoogle(idToken: idToken)
+            } catch {
+                if (error as NSError).code != GIDSignInError.canceled.rawValue {
+                    authManager.error = "Google sign-in failed. Please try again."
+                }
+            }
         }
     }
 

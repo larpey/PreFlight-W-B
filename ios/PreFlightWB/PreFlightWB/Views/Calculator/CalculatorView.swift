@@ -12,11 +12,14 @@ struct CalculatorView: View {
 
     @State private var stationWeights: [String: Double] = [:]
     @State private var fuelGallons: [String: Double] = [:]
+    @State private var fuelBurnGallons: Double = 0
     @State private var showSaveSheet = false
     @State private var showChart = false
     @State private var loadedScenarioId: String?
     @State private var loadedScenarioName: String?
     @State private var selectedTab: CalculatorTab = .loading
+    @State private var showShareSheet = false
+    @State private var pdfURL: URL?
 
     @Environment(\.modelContext) private var modelContext
 
@@ -62,8 +65,21 @@ struct CalculatorView: View {
         )
     }
 
+    private var landingResult: LandingResult? {
+        Calculator.calculateLanding(
+            takeoffResult: result,
+            aircraft: aircraft,
+            fuelLoads: fuelLoads,
+            fuelBurnGallons: fuelBurnGallons
+        )
+    }
+
     private var dangerWarnings: [CalculationWarning] {
-        result.warnings.filter { $0.level == .danger }
+        var warnings = result.warnings.filter { $0.level == .danger }
+        if let landing = landingResult {
+            warnings += landing.warnings.filter { $0.level == .danger }
+        }
+        return warnings
     }
 
     // MARK: - Body
@@ -205,6 +221,66 @@ struct CalculatorView: View {
                     gallons: fuelBinding(for: tank)
                 )
             }
+
+            // Fuel burn input
+            fuelBurnSection
+        }
+    }
+
+    // MARK: - Fuel Burn Section
+
+    private var totalFuelGallons: Double {
+        fuelLoads.reduce(0.0) { $0 + max(0, $1.gallons) }
+    }
+
+    private var fuelBurnSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            SectionHeader(title: "Expected Fuel Burn")
+
+            VStack(spacing: Spacing.xs) {
+                HStack {
+                    Text("Burn")
+                        .font(.subheadline)
+                    Spacer()
+                    Text("\(formatted(fuelBurnGallons, decimals: 0)) gal")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .monospacedDigit()
+                    Text("(\(formatted(fuelBurnGallons * 6.0, decimals: 0)) lbs)")
+                        .font(.caption)
+                        .foregroundStyle(Color.pfTextSecondary)
+                }
+
+                HapticSlider(
+                    value: $fuelBurnGallons,
+                    in: 0...max(1, totalFuelGallons),
+                    step: 1
+                )
+
+                if let landing = landingResult {
+                    HStack(spacing: Spacing.sm) {
+                        Label(
+                            "\(formatted(landing.landingWeight, decimals: 0)) lbs",
+                            systemImage: "airplane.arrival"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(landing.isWithinWeightLimit ? Color.pfTextSecondary : Color.statusDanger)
+
+                        Spacer()
+
+                        Label(
+                            "CG \(formatted(landing.landingCG, decimals: 2))\"",
+                            systemImage: "scope"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(landing.isWithinCGEnvelope ? Color.pfTextSecondary : Color.statusDanger)
+                    }
+                    .padding(.top, Spacing.xxs)
+                }
+            }
+            .padding(Spacing.sm)
+            .background(Color.pfCard)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
         }
     }
 
@@ -213,7 +289,7 @@ struct CalculatorView: View {
     private var resultsSection: some View {
         VStack(spacing: Spacing.md) {
             // Full results dashboard
-            ResultsDashboard(result: result, aircraft: aircraft)
+            ResultsDashboard(result: result, aircraft: aircraft, landingResult: landingResult)
 
             // CG Envelope chart
             CGEnvelopeChart(
@@ -221,12 +297,39 @@ struct CalculatorView: View {
                 currentWeight: result.totalWeight,
                 currentCG: result.cg,
                 isWithinEnvelope: result.isWithinCGEnvelope,
-                maxGrossWeight: aircraft.maxGrossWeight.value
+                maxGrossWeight: aircraft.maxGrossWeight.value,
+                landingWeight: landingResult?.landingWeight,
+                landingCG: landingResult?.landingCG,
+                isLandingWithinEnvelope: landingResult?.isWithinCGEnvelope
             )
 
             // All warnings section
-            if !result.warnings.isEmpty {
-                alertsSection
+            let allWarnings = result.warnings + (landingResult?.warnings ?? [])
+            if !allWarnings.isEmpty {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    SectionHeader(title: "Alerts")
+                    SafetyAlerts(warnings: allWarnings)
+                }
+            }
+
+            // Export PDF button
+            Button {
+                if let url = PDFExporter.generateLoadSheet(
+                    aircraft: aircraft,
+                    result: result,
+                    landingResult: landingResult,
+                    pilotName: nil
+                ) {
+                    pdfURL = url
+                    showShareSheet = true
+                }
+            } label: {
+                Label("Export Load Sheet", systemImage: "square.and.arrow.up")
+                    .font(.subheadline.weight(.medium))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.sm)
+                    .background(Color.pfCard)
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
             }
 
             // Loading breakdown table
@@ -235,15 +338,10 @@ struct CalculatorView: View {
             // Disclaimer
             disclaimerSection
         }
-    }
-
-    // MARK: - Alerts Section
-
-    private var alertsSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            SectionHeader(title: "Alerts")
-
-            SafetyAlerts(warnings: result.warnings)
+        .sheet(isPresented: $showShareSheet) {
+            if let url = pdfURL {
+                ShareSheet(items: [url])
+            }
         }
     }
 
@@ -429,6 +527,7 @@ struct CalculatorView: View {
         for tank in aircraft.fuelTanks {
             fuelGallons[tank.id] = 0
         }
+        fuelBurnGallons = 0
     }
 
     private func saveScenario(name: String, notes: String? = nil, existingId: String? = nil) {

@@ -80,6 +80,16 @@ struct CalculationWarning: Codable, Sendable {
     let message: String
     let detail: String?
     let regulatoryRef: String?
+    let remediation: String?
+
+    init(level: WarningLevel, code: WarningCode, message: String, detail: String?, regulatoryRef: String?, remediation: String? = nil) {
+        self.level = level
+        self.code = code
+        self.message = message
+        self.detail = detail
+        self.regulatoryRef = regulatoryRef
+        self.remediation = remediation
+    }
 }
 
 // MARK: - Calculation Result
@@ -101,5 +111,18 @@ struct CalculationResult: Codable, Sendable {
     let stationDetails: [StationDetail]
     let fuelDetails: [FuelDetail]
 
+    let warnings: [CalculationWarning]
+}
+
+// MARK: - Landing Result
+
+/// Result of a landing weight & CG calculation after fuel burn.
+struct LandingResult: Sendable {
+    let landingWeight: Double
+    let landingCG: Double
+    let fuelBurnGallons: Double
+    let fuelBurnWeight: Double
+    let isWithinCGEnvelope: Bool
+    let isWithinWeightLimit: Bool
     let warnings: [CalculationWarning]
 }

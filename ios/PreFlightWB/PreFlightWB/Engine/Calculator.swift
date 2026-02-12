@@ -169,12 +169,20 @@ enum Calculator {
 
         // OVER_MAX_GROSS or NEAR_MAX_GROSS
         if !isWithinWeightLimit {
+            let excess = totalWeight - maxGross
+            let remediation = buildWeightRemediation(
+                excess: excess,
+                stationDetails: stationDetails,
+                fuelDetails: fuelDetails,
+                fuelTanks: aircraft.fuelTanks
+            )
             warnings.append(CalculationWarning(
                 level: .danger,
                 code: .overMaxGross,
                 message: "Aircraft exceeds maximum takeoff weight",
-                detail: "\(formatDecimal(totalWeight, decimals: 1)) lbs exceeds limit of \(formatWithComma(maxGross)) lbs by \(formatDecimal(totalWeight - maxGross, decimals: 1)) lbs",
-                regulatoryRef: "FAR 91.103"
+                detail: "\(formatDecimal(totalWeight, decimals: 1)) lbs exceeds limit of \(formatWithComma(maxGross)) lbs by \(formatDecimal(excess, decimals: 1)) lbs",
+                regulatoryRef: "FAR 91.103",
+                remediation: remediation
             ))
         } else if weightMargin < maxGross * 0.05 {
             warnings.append(CalculationWarning(
@@ -262,6 +270,134 @@ enum Calculator {
             fuelDetails: fuelDetails,
             warnings: warnings
         )
+    }
+
+    // MARK: - Landing Calculation
+
+    /// Calculate landing weight and CG after fuel burn.
+    ///
+    /// Distributes the fuel burn proportionally across all tanks based on
+    /// their current load. Returns nil if no fuel burn is specified.
+    ///
+    /// - Parameters:
+    ///   - takeoffResult: The takeoff calculation result.
+    ///   - aircraft: The aircraft definition.
+    ///   - fuelLoads: Current fuel loads in each tank.
+    ///   - fuelBurnGallons: Total gallons expected to burn during flight.
+    /// - Returns: A `LandingResult` with landing weight, CG, and any warnings.
+    static func calculateLanding(
+        takeoffResult: CalculationResult,
+        aircraft: Aircraft,
+        fuelLoads: [FuelLoad],
+        fuelBurnGallons: Double
+    ) -> LandingResult? {
+        guard fuelBurnGallons > 0 else { return nil }
+
+        let totalFuelGallons = fuelLoads.reduce(0.0) { $0 + max(0, $1.gallons) }
+        guard totalFuelGallons > 0 else { return nil }
+
+        // Distribute burn proportionally across tanks
+        var burnedWeight = 0.0
+        var burnedMoment = 0.0
+        var warnings: [CalculationWarning] = []
+
+        let actualBurn = min(fuelBurnGallons, totalFuelGallons)
+        if fuelBurnGallons > totalFuelGallons {
+            warnings.append(CalculationWarning(
+                level: .danger,
+                code: .negativeFuel,
+                message: "Fuel burn exceeds loaded fuel",
+                detail: "Planned burn of \(formatDecimal(fuelBurnGallons, decimals: 0)) gal exceeds \(formatDecimal(totalFuelGallons, decimals: 0)) gal loaded",
+                regulatoryRef: nil
+            ))
+        }
+
+        for load in fuelLoads {
+            guard let tank = aircraft.fuelTanks.first(where: { $0.id == load.tankId }) else { continue }
+            let proportion = load.gallons / totalFuelGallons
+            let tankBurnGallons = actualBurn * proportion
+            let tankBurnWeight = tankBurnGallons * tank.fuelWeightPerGallon
+            burnedWeight += tankBurnWeight
+            burnedMoment += tankBurnWeight * tank.arm.value
+        }
+
+        let landingWeight = takeoffResult.totalWeight - burnedWeight
+        let landingMoment = takeoffResult.totalMoment - burnedMoment
+        let landingCG = landingWeight > 0 ? landingMoment / landingWeight : 0
+
+        let isWithinEnvelope = Envelope.isPointInEnvelope(
+            weight: landingWeight,
+            cg: landingCG,
+            envelope: aircraft.cgEnvelope
+        )
+        let isWithinWeightLimit = landingWeight <= aircraft.maxGrossWeight.value
+
+        // Check landing weight limit if aircraft has one
+        if let maxLanding = aircraft.maxLandingWeight {
+            if landingWeight > maxLanding.value {
+                warnings.append(CalculationWarning(
+                    level: .warning,
+                    code: .overMaxLanding,
+                    message: "Landing weight exceeds max landing weight",
+                    detail: "\(formatDecimal(landingWeight, decimals: 0)) lbs exceeds landing limit of \(formatWithComma(maxLanding.value)) lbs",
+                    regulatoryRef: nil
+                ))
+            }
+        }
+
+        if !isWithinEnvelope {
+            warnings.append(CalculationWarning(
+                level: .danger,
+                code: .cgOutOfEnvelope,
+                message: "Landing CG outside approved envelope",
+                detail: "CG shifts to \(formatDecimal(landingCG, decimals: 2)) in after \(formatDecimal(actualBurn, decimals: 0)) gal fuel burn",
+                regulatoryRef: "FAR 91.103"
+            ))
+        }
+
+        return LandingResult(
+            landingWeight: landingWeight,
+            landingCG: landingCG,
+            fuelBurnGallons: actualBurn,
+            fuelBurnWeight: burnedWeight,
+            isWithinCGEnvelope: isWithinEnvelope,
+            isWithinWeightLimit: isWithinWeightLimit,
+            warnings: warnings
+        )
+    }
+
+    // MARK: - Remediation Helpers
+
+    /// Build actionable remediation text for an overweight condition.
+    /// Suggests removing fuel or reducing the heaviest loaded station.
+    private static func buildWeightRemediation(
+        excess: Double,
+        stationDetails: [StationDetail],
+        fuelDetails: [FuelDetail],
+        fuelTanks: [FuelTank]
+    ) -> String {
+        var suggestions: [String] = []
+
+        // Suggest fuel reduction for each tank that has fuel
+        for detail in fuelDetails where detail.weight > 0 {
+            if let tank = fuelTanks.first(where: { $0.id == detail.tankId }) {
+                let gallonsToRemove = ceil(excess / tank.fuelWeightPerGallon)
+                if gallonsToRemove <= detail.gallons {
+                    suggestions.append("Remove \(formatDecimal(gallonsToRemove, decimals: 0)) gal from \(detail.name)")
+                }
+            }
+        }
+
+        // Suggest reducing the heaviest station
+        if let heaviest = stationDetails.filter({ $0.weight > 0 }).max(by: { $0.weight < $1.weight }),
+           heaviest.weight >= excess {
+            suggestions.append("Reduce \(heaviest.name) by \(formatDecimal(excess, decimals: 0)) lbs")
+        }
+
+        if suggestions.isEmpty {
+            return "Reduce total load by \(formatDecimal(excess, decimals: 0)) lbs"
+        }
+        return suggestions.prefix(2).joined(separator: " OR ")
     }
 
     // MARK: - Formatting Helpers
