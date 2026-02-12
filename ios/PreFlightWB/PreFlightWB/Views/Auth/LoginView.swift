@@ -450,13 +450,10 @@ struct LoginView: View {
             }
         case .failure(let error):
             let asError = error as? ASAuthorizationError
-            // Silently ignore canceled, unknown (1000), and not-available errors
-            // to prevent render loops when Sign in with Apple isn't configured.
-            let silentCodes: [ASAuthorizationError.Code] = [.canceled, .unknown, .notHandled]
-            if let code = asError?.code, silentCodes.contains(code) {
+            if asError?.code == .canceled {
                 return
             }
-            authManager.error = "Apple sign-in failed. Please try again."
+            authManager.error = "Apple sign-in failed. Try deleting the app and reinstalling, or use email/guest sign-in."
         }
     }
 
