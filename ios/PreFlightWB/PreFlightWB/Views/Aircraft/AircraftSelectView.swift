@@ -9,7 +9,7 @@ struct AircraftSelectView: View {
     @State private var searchText = ""
 
     private let columns = [
-        GridItem(.adaptive(minimum: 160), spacing: Spacing.sm),
+        GridItem(.flexible()),
     ]
 
     /// All aircraft, optionally filtered by search text.
@@ -52,7 +52,7 @@ struct AircraftSelectView: View {
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.top, Spacing.xs)
-                    .padding(.bottom, Spacing.lg)
+                    .padding(.bottom, Spacing.xxl)
             }
             .padding(.horizontal, Spacing.md)
             .padding(.top, Spacing.xs)

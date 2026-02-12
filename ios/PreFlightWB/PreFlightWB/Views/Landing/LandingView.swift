@@ -60,7 +60,7 @@ struct LandingView: View {
 
             VStack(spacing: Spacing.sm) {
                 Spacer()
-                    .frame(height: 60)
+                    .frame(height: 44)
 
                 // Floating scale icon
                 Image(systemName: "scalemass")
@@ -108,7 +108,7 @@ struct LandingView: View {
             }
             .padding(.horizontal, Spacing.lg - 4)
         }
-        .frame(height: 340)
+        .frame(height: 310)
     }
 
     // MARK: - Disclaimer Section

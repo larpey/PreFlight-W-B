@@ -53,6 +53,7 @@ struct StationInputRow: View {
                                 Text(preset.label)
                                     .font(.caption2)
                                     .fontWeight(.medium)
+                                    .fixedSize()
                                     .padding(.horizontal, Spacing.xs)
                                     .padding(.vertical, 4)
                                     .background(
@@ -65,6 +66,7 @@ struct StationInputRow: View {
                             .buttonStyle(.plain)
                         }
                     }
+                    .padding(.trailing, Spacing.xs)
                 }
             }
 

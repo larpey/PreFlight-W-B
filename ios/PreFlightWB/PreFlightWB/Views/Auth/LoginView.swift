@@ -422,7 +422,8 @@ struct LoginView: View {
             if asError?.code == .canceled {
                 return
             }
-            authManager.error = "Apple sign-in failed. Try deleting the app and reinstalling, or use email/guest sign-in."
+            let code = asError?.code.rawValue.description ?? "unknown"
+            authManager.error = "Apple sign-in failed (code \(code)): \(error.localizedDescription)"
         }
     }
 
