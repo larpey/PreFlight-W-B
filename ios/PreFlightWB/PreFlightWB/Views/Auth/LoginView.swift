@@ -22,42 +22,42 @@ struct LoginView: View {
     // Hidden text field backing for digit boxes
     @FocusState private var codeFieldFocused: Bool
 
-    // MARK: - Gradient colors
-
-    private let navyBlue = Color(red: 0.106, green: 0.157, blue: 0.220)   // #1B2838
-    private let aviationBlue = Color(red: 0.145, green: 0.388, blue: 0.922) // #2563EB
-
     var body: some View {
         ZStack {
-            // Gradient background matching landing page
-            LinearGradient(
-                colors: [navyBlue, aviationBlue],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            // Cockpit background with subtle radial glow
+            Color.cockpitBackground
+                .ignoresSafeArea()
+
+            RadialGradient(
+                colors: [Color.readoutBlue.opacity(0.12), .clear],
+                center: .center,
+                startRadius: 0,
+                endRadius: 300
             )
             .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: 60)
+                        .frame(height: 32)
 
                     // MARK: - Header Icon
                     Image(systemName: "scalemass")
                         .font(.system(size: 48))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(.readoutBlue)
+                        .shadow(color: .readoutBlue.opacity(0.4), radius: 16)
                         .padding(.bottom, Spacing.md)
 
                     // MARK: - Title
                     Text("Sign In")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundStyle(.white)
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundStyle(.readoutWhite)
                         .padding(.bottom, Spacing.xs)
 
                     // MARK: - Subtitle
                     Text("Sign in to save scenarios and sync across your devices.")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(.cockpitLabel)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: 300)
                         .padding(.bottom, Spacing.xl)
@@ -88,8 +88,12 @@ struct LoginView: View {
                         }
                     }
                     .padding(Spacing.lg)
-                    .background(.ultraThinMaterial)
+                    .background(Color.cockpitSurface)
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.xl))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.xl)
+                            .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                    )
                     .padding(.horizontal, Spacing.lg)
 
                     // MARK: - Guest Button
@@ -99,7 +103,7 @@ struct LoginView: View {
                     // MARK: - Guest Disclaimer
                     Text("Guest mode works fully offline but scenarios won\u{2019}t be saved or synced across devices.")
                         .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.2))
+                        .foregroundStyle(Color.cockpitLabelDim)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: 280)
                         .padding(.top, Spacing.md)
@@ -162,13 +166,13 @@ struct LoginView: View {
     private var orDivider: some View {
         HStack(spacing: Spacing.sm) {
             Rectangle()
-                .fill(.white.opacity(0.4))
+                .fill(Color.cockpitBezel)
                 .frame(height: 1)
             Text("or")
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Color.cockpitLabel)
             Rectangle()
-                .fill(.white.opacity(0.4))
+                .fill(Color.cockpitBezel)
                 .frame(height: 1)
         }
     }
@@ -192,14 +196,14 @@ struct LoginView: View {
                             .font(.body)
                             .fontWeight(.medium)
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.readoutWhite)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(.white.opacity(0.08))
+                    .background(Color.cockpitBezel.opacity(0.6))
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
                     .overlay(
                         RoundedRectangle(cornerRadius: CornerRadius.md)
-                            .strokeBorder(.white.opacity(0.1), lineWidth: 1)
+                            .strokeBorder(Color.cockpitBezel, lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
@@ -232,14 +236,14 @@ struct LoginView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .font(.body)
-                .foregroundStyle(.white)
+                .foregroundStyle(.readoutWhite)
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, 14)
-                .background(.white.opacity(0.05))
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.md)
-                        .strokeBorder(.white.opacity(0.1), lineWidth: 1)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
                 )
                 .disabled(isLoading)
 
@@ -250,7 +254,7 @@ struct LoginView: View {
                     if isLoading {
                         HStack(spacing: Spacing.xs) {
                             ProgressView()
-                                .tint(.white)
+                                .tint(Color.readoutBlue)
                             Text("Sending...")
                                 .font(.body)
                                 .fontWeight(.semibold)
@@ -265,8 +269,8 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
                 .background(email.trimmingCharacters(in: .whitespaces).isEmpty || isLoading
-                            ? Color.statusInfo.opacity(0.4)
-                            : Color.statusInfo)
+                            ? Color.readoutBlue.opacity(0.4)
+                            : Color.readoutBlue)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
             }
             .buttonStyle(.press)
@@ -280,11 +284,11 @@ struct LoginView: View {
         VStack(spacing: Spacing.sm) {
             Text("We sent a 6-digit code to ")
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(.cockpitLabel)
             + Text(email)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(.readoutWhite)
 
             // Individual digit boxes
             ZStack {
@@ -326,7 +330,7 @@ struct LoginView: View {
                     if isLoading {
                         HStack(spacing: Spacing.xs) {
                             ProgressView()
-                                .tint(.white)
+                                .tint(Color.readoutBlue)
                             Text("Verifying...")
                                 .font(.body)
                                 .fontWeight(.semibold)
@@ -341,8 +345,8 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
                 .background(code.count != 6 || isLoading
-                            ? Color.statusInfo.opacity(0.4)
-                            : Color.statusInfo)
+                            ? Color.readoutBlue.opacity(0.4)
+                            : Color.readoutBlue)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
             }
             .buttonStyle(.press)
@@ -356,7 +360,7 @@ struct LoginView: View {
             } label: {
                 Text("Use a different email")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(Color.cockpitLabel)
             }
             .buttonStyle(.plain)
             .disabled(isLoading)
@@ -371,16 +375,16 @@ struct LoginView: View {
 
         return Text(character)
             .font(.system(size: 22, weight: .bold, design: .monospaced))
-            .foregroundStyle(.white)
-            .frame(width: 44, height: 44)
-            .background(.ultraThinMaterial)
+            .foregroundStyle(.readoutWhite)
+            .frame(width: 48, height: 48)
+            .background(Color.cockpitSurfaceElevated)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
             .overlay(
                 RoundedRectangle(cornerRadius: CornerRadius.md)
                     .strokeBorder(
                         index == characters.count
-                            ? Color.statusInfo.opacity(0.8)
-                            : .white.opacity(0.15),
+                            ? Color.readoutBlue.opacity(0.8)
+                            : Color.cockpitBezel,
                         lineWidth: index == characters.count ? 2 : 1
                     )
             )
@@ -394,7 +398,7 @@ struct LoginView: View {
         } label: {
             Text("Continue without account")
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Color.cockpitLabel)
         }
         .buttonStyle(.plain)
         .disabled(isLoading)

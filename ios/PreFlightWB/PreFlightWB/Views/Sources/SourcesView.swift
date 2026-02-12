@@ -3,6 +3,7 @@ import SwiftUI
 /// Source attribution display for an aircraft.
 /// Shows the provenance and confidence of every specification value
 /// with collapsible sections and copy-citation support.
+/// Styled as a cockpit instrument panel with dark surfaces and glowing readouts.
 struct SourcesView: View {
     let aircraft: Aircraft
 
@@ -16,11 +17,19 @@ struct SourcesView: View {
                     aircraftInfoContent
                 } label: {
                     Text("Aircraft Information")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.readoutWhite)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
                 }
                 .padding(Spacing.md)
-                .background(Color.pfCard)
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                )
 
                 // Weight specifications
                 DisclosureGroup(isExpanded: binding(for: "weights")) {
@@ -46,11 +55,19 @@ struct SourcesView: View {
                     }
                 } label: {
                     Text("Weight Specifications")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.readoutWhite)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
                 }
                 .padding(Spacing.md)
-                .background(Color.pfCard)
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                )
 
                 // CG Range
                 DisclosureGroup(isExpanded: binding(for: "cgrange")) {
@@ -70,11 +87,19 @@ struct SourcesView: View {
                     }
                 } label: {
                     Text("CG Range")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.readoutWhite)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
                 }
                 .padding(Spacing.md)
-                .background(Color.pfCard)
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                )
 
                 // Loading Stations
                 DisclosureGroup(isExpanded: binding(for: "stations")) {
@@ -90,11 +115,19 @@ struct SourcesView: View {
                     }
                 } label: {
                     Text("Loading Stations")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.readoutWhite)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
                 }
                 .padding(Spacing.md)
-                .background(Color.pfCard)
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                )
 
                 // Fuel Tanks
                 DisclosureGroup(isExpanded: binding(for: "fuel")) {
@@ -110,31 +143,49 @@ struct SourcesView: View {
                     }
                 } label: {
                     Text("Fuel Tanks")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.readoutWhite)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
                 }
                 .padding(Spacing.md)
-                .background(Color.pfCard)
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                )
 
                 // CG Envelope
                 DisclosureGroup(isExpanded: binding(for: "envelope")) {
                     envelopeSourceCard(source: aircraft.cgEnvelope.source)
                 } label: {
                     Text("CG Envelope")
-                        .sectionHeaderStyle()
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.readoutWhite)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
                 }
                 .padding(Spacing.md)
-                .background(Color.pfCard)
+                .background(Color.cockpitSurface)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.md)
+                        .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                )
 
                 Spacer(minLength: Spacing.xl)
             }
             .padding(.horizontal, Spacing.md)
             .padding(.vertical, Spacing.md)
         }
-        .background(Color.pfBackground)
+        .background(Color.cockpitBackground)
         .navigationTitle("Sources: \(aircraft.model)")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - Section Binding
@@ -158,6 +209,7 @@ struct SourcesView: View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
             Text(aircraft.name)
                 .font(.headline)
+                .foregroundStyle(Color.readoutWhite)
 
             HStack(spacing: 0) {
                 Text(aircraft.manufacturer)
@@ -167,11 +219,11 @@ struct SourcesView: View {
                 Text(" \u{00B7} TCDS \(aircraft.regulatory.tcdsNumber)")
             }
             .font(.caption)
-            .foregroundStyle(Color.pfTextSecondary)
+            .foregroundStyle(Color.cockpitLabel)
 
             Text("Datum: \(aircraft.datum)")
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, Spacing.xs)
@@ -191,12 +243,15 @@ struct SourcesView: View {
                 Text(label)
                     .font(.subheadline)
                     .fontWeight(.medium)
+                    .foregroundStyle(Color.readoutWhite)
                 Spacer()
                 HStack(spacing: Spacing.xxs) {
                     Text(value)
                         .monospacedDigit()
+                        .foregroundStyle(Color.readoutWhite)
                     if !unit.isEmpty {
                         Text(unit)
+                            .foregroundStyle(Color.readoutWhite)
                     }
                 }
                 .font(.subheadline)
@@ -206,7 +261,7 @@ struct SourcesView: View {
             InlineSourceView(source: source)
         }
         .padding(Spacing.sm)
-        .background(Color.pfBackground)
+        .background(Color.cockpitBackground)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
     }
 
@@ -218,7 +273,7 @@ struct SourcesView: View {
                 Text("Source Document")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundStyle(Color.pfTextSecondary)
+                    .foregroundStyle(Color.cockpitLabel)
                 Spacer()
                 ConfidenceBadge(confidence: source.confidence)
             }
@@ -226,22 +281,23 @@ struct SourcesView: View {
             Text(source.primary.document)
                 .font(.subheadline)
                 .fontWeight(.medium)
+                .foregroundStyle(Color.readoutWhite)
 
             Text(source.primary.section)
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Text("Publisher: \(source.primary.publisher)")
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Text("Published: \(source.primary.datePublished)")
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Text("Last Verified: \(source.lastVerified)")
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             // Copy citation button
             Button {
@@ -254,9 +310,11 @@ struct SourcesView: View {
                     Text("Copy Citation")
                 }
                 .font(.caption)
-                .foregroundStyle(Color.statusInfo)
+                .foregroundStyle(Color.readoutBlue)
             }
             .buttonStyle(.press)
+            .frame(minWidth: Spacing.touchMinimum, minHeight: Spacing.touchMinimum)
+            .contentShape(Rectangle())
             .padding(.top, Spacing.xxs)
 
             if let secondary = source.secondary {
@@ -264,19 +322,20 @@ struct SourcesView: View {
                 Text("Cross-Reference")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundStyle(Color.pfTextSecondary)
+                    .foregroundStyle(Color.cockpitLabel)
                 Text(secondary.document)
                     .font(.caption)
+                    .foregroundStyle(Color.readoutWhite)
                 Text("Verification: \(secondary.verification)")
                     .font(.caption)
-                    .foregroundStyle(Color.pfTextSecondary)
+                    .foregroundStyle(Color.cockpitLabel)
             }
 
             if let notes = source.notes {
                 Divider()
                 Text(notes)
                     .font(.caption)
-                    .foregroundStyle(Color.statusCaution)
+                    .foregroundStyle(Color.readoutAmber)
             }
         }
         .padding(.top, Spacing.xs)
@@ -305,15 +364,15 @@ private struct InlineSourceView: View {
 
             Text(source.primary.document)
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Text("\u{00B7}")
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.cockpitLabelDim)
 
             Text(source.primary.section)
                 .font(.caption)
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Spacer(minLength: 0)
 
@@ -325,14 +384,16 @@ private struct InlineSourceView: View {
             } label: {
                 Image(systemName: "doc.on.doc")
                     .font(.caption2)
-                    .foregroundStyle(Color.statusInfo)
+                    .foregroundStyle(Color.readoutBlue)
             }
             .buttonStyle(.press)
+            .frame(minWidth: Spacing.touchMinimum, minHeight: Spacing.touchMinimum)
+            .contentShape(Rectangle())
 
             if let notes = source.notes {
                 Text(String(notes.prefix(60)))
                     .font(.caption)
-                    .foregroundStyle(Color.statusCaution)
+                    .foregroundStyle(Color.readoutAmber)
                     .lineLimit(1)
             }
         }
@@ -368,10 +429,10 @@ struct ConfidenceBadge: View {
         HStack(spacing: Spacing.xxs) {
             Circle()
                 .fill(color)
-                .frame(width: 10, height: 10)
+                .frame(width: 12, height: 12)
             Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+                .font(.caption)
+                .foregroundStyle(Color.cockpitLabel)
         }
         .accessibilityLabel("\(label) confidence")
     }

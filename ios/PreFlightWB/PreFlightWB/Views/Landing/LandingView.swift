@@ -29,7 +29,7 @@ struct LandingView: View {
                         // Safety Disclaimer
                         disclaimerSection
 
-                        // Features Grid
+                        // Features List
                         featuresSection
 
                         // CTA Button
@@ -51,16 +51,20 @@ struct LandingView: View {
 
     private var heroSection: some View {
         ZStack {
-            // Deep gradient background
+            // 3-stop gradient: cockpitBackground -> aviationBlue at 40% opacity -> cockpitBackground
             LinearGradient(
-                colors: [navyBlue, aviationBlue],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                stops: [
+                    .init(color: Color.cockpitBackground, location: 0.0),
+                    .init(color: aviationBlue.opacity(0.4), location: 0.6),
+                    .init(color: Color.cockpitBackground, location: 1.0)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
 
             VStack(spacing: Spacing.sm) {
                 Spacer()
-                    .frame(height: 44)
+                    .frame(height: 32)
 
                 // Floating scale icon
                 Image(systemName: "scalemass")
@@ -76,14 +80,14 @@ struct LandingView: View {
                         }
                     }
 
-                // App name
+                // App name — 36pt rounded design
                 VStack(spacing: Spacing.xxs) {
                     Text("PreFlight")
-                        .font(.largeTitle.bold())
+                        .font(.system(size: 36, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Text("W&B")
-                        .font(.largeTitle.bold())
-                        .foregroundStyle(.white.opacity(0.8))
+                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.readoutBlue)
                 }
 
                 // Tagline
@@ -108,7 +112,7 @@ struct LandingView: View {
             }
             .padding(.horizontal, Spacing.lg - 4)
         }
-        .frame(height: 310)
+        .frame(height: 260)
     }
 
     // MARK: - Disclaimer Section
@@ -175,26 +179,36 @@ struct LandingView: View {
     // MARK: - Features Section
 
     private var featuresSection: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Spacing.sm) {
+        VStack(spacing: Spacing.sm) {
             ForEach(features, id: \.title) { feature in
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Image(systemName: feature.icon)
-                        .font(.system(size: 24))
-                        .foregroundStyle(Color.statusInfo)
+                HStack(spacing: Spacing.md) {
+                    // 44x44 circle with icon and readoutBlue background at 10%
+                    ZStack {
+                        Circle()
+                            .fill(Color.readoutBlue.opacity(0.10))
+                            .frame(width: 44, height: 44)
 
-                    Text(feature.title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Color.pfText)
+                        Image(systemName: feature.icon)
+                            .font(.system(size: 20))
+                            .foregroundStyle(Color.readoutBlue)
+                    }
 
-                    Text(feature.desc)
-                        .font(.caption)
-                        .foregroundStyle(Color.pfTextSecondary)
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
+                    // Title + description
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        Text(feature.title)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.readoutWhite)
+
+                        Text(feature.desc)
+                            .font(.caption)
+                            .foregroundStyle(Color.cockpitLabel)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Spacer(minLength: 0)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .glassCard()
+                .instrumentCard()
             }
         }
     }
@@ -214,10 +228,10 @@ struct LandingView: View {
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, Spacing.md)
-            .background(Color.statusInfo)
+            .frame(height: Spacing.touchLarge) // 56pt
+            .background(Color.readoutBlue)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg))
-            .appShadow(.medium)
+            .shadow(color: Color.readoutBlue.opacity(0.4), radius: 12, y: 4)
         }
         .buttonStyle(.press)
     }
@@ -231,7 +245,7 @@ struct LandingView: View {
 
             Text("Not for flight planning. Always verify with your aircraft\u{2019}s actual W&B records.")
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.cockpitLabelDim)
                 .multilineTextAlignment(.center)
         }
     }

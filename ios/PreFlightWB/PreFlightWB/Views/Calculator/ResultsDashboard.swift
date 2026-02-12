@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Summary card displayed at the top of the calculator screen.
-/// Shows total weight, CG, weight margin, and overall status with animated transitions.
+/// Cockpit-style summary dashboard displayed at the top of the calculator screen.
+/// Shows instrument gauges for weight and CG, margin cards, and overall status with animated transitions.
 struct ResultsDashboard: View {
     let result: CalculationResult
     let aircraft: Aircraft
@@ -40,6 +40,17 @@ struct ResultsDashboard: View {
         }
     }
 
+    // MARK: - CG Gauge Range
+
+    /// Compute CG range from the result margins so the gauge spans forward limit to aft limit.
+    private var cgForwardLimit: Double {
+        result.cg - result.cgForwardMargin
+    }
+
+    private var cgAftLimit: Double {
+        result.cg + result.cgAftMargin
+    }
+
     var body: some View {
         VStack(spacing: Spacing.sm) {
             // Status badge
@@ -48,49 +59,42 @@ struct ResultsDashboard: View {
                 Spacer()
             }
 
-            // Weight and CG row
+            // Instrument gauges row
             HStack(spacing: Spacing.md) {
-                // Total weight
-                VStack(alignment: .leading, spacing: Spacing.xxs) {
-                    Text("Total Weight")
-                        .font(.caption)
-                        .foregroundStyle(Color.pfTextSecondary)
-                    Text("\(formatted(result.totalWeight, decimals: 0)) lbs")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundStyle(result.isWithinWeightLimit ? .primary : Color.statusDanger)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
+                InstrumentGauge(
+                    value: result.totalWeight,
+                    range: 0...aircraft.maxGrossWeight.value,
+                    cautionThreshold: 0.9,
+                    dangerThreshold: 0.95,
+                    label: "WEIGHT",
+                    unit: "lbs"
+                )
 
-                Spacer()
-
-                // CG
-                VStack(alignment: .trailing, spacing: Spacing.xxs) {
-                    Text("CG Position")
-                        .font(.caption)
-                        .foregroundStyle(Color.pfTextSecondary)
-                    Text("\(formatted(result.cg, decimals: 2))\"")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundStyle(result.isWithinCGEnvelope ? .primary : Color.statusDanger)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                }
+                InstrumentGauge(
+                    value: result.cg,
+                    range: cgForwardLimit...cgAftLimit,
+                    cautionThreshold: 0.85,
+                    dangerThreshold: 0.95,
+                    label: "CG",
+                    unit: "in",
+                    decimals: 1
+                )
             }
+            .frame(maxWidth: .infinity)
 
             // Weight progress bar
             VStack(spacing: Spacing.xxs) {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         // Background track
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.pfSeparator.opacity(0.3))
+                        RoundedRectangle(cornerRadius: CornerRadius.xs)
+                            .fill(Color.cockpitBezel)
                             .frame(height: 12)
 
                         // Fill bar
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: CornerRadius.xs)
                             .fill(weightBarColor)
+                            .shadow(color: weightBarColor.opacity(0.5), radius: 6)
                             .frame(
                                 width: max(0, min(geometry.size.width, geometry.size.width * weightFraction)),
                                 height: 12
@@ -103,15 +107,15 @@ struct ResultsDashboard: View {
                 HStack {
                     Text("0 lbs")
                         .font(.system(size: 10))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Color.cockpitLabelDim)
                     Spacer()
                     Text("Max \(formatted(aircraft.maxGrossWeight.value, decimals: 0)) lbs")
                         .font(.system(size: 10))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Color.cockpitLabelDim)
                 }
             }
 
-            // Margins row — each in its own mini glass card
+            // Margins row
             HStack(spacing: Spacing.xs) {
                 marginCard(
                     icon: "scalemass",
@@ -137,26 +141,28 @@ struct ResultsDashboard: View {
 
             // Landing section (if fuel burn specified)
             if let landing = landingResult {
-                Divider().opacity(0.3)
+                Rectangle()
+                    .fill(Color.cockpitBezel)
+                    .frame(height: 1)
 
                 HStack {
                     Image(systemName: "airplane.arrival")
                         .font(.caption)
-                        .foregroundStyle(Color.pfTextSecondary)
+                        .foregroundStyle(Color.cockpitLabel)
                     Text("Landing")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundStyle(Color.pfTextSecondary)
+                        .foregroundStyle(Color.cockpitLabel)
                     Spacer()
                     Text("\(formatted(landing.landingWeight, decimals: 0)) lbs")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(landing.isWithinWeightLimit ? .primary : Color.statusDanger)
+                        .foregroundStyle(landing.isWithinWeightLimit ? Color.readoutWhite : Color.readoutRed)
                         .monospacedDigit()
                     Text("CG \(formatted(landing.landingCG, decimals: 2))\"")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(landing.isWithinCGEnvelope ? .primary : Color.statusDanger)
+                        .foregroundStyle(landing.isWithinCGEnvelope ? Color.readoutWhite : Color.readoutRed)
                         .monospacedDigit()
                 }
 
@@ -183,8 +189,12 @@ struct ResultsDashboard: View {
             }
         }
         .padding(Spacing.md)
-        .background(Color.pfCard)
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+        )
         .onChange(of: isWithinLimits) { oldValue, newValue in
             guard let wasIn = wasWithinLimits else {
                 wasWithinLimits = newValue
@@ -208,11 +218,11 @@ struct ResultsDashboard: View {
 
     private var weightBarColor: Color {
         if weightFraction > 1.0 {
-            return .statusDanger
+            return .readoutRed
         } else if weightFraction > 0.95 {
-            return .statusCaution
+            return .readoutAmber
         } else {
-            return .statusSafe
+            return .readoutGreen
         }
     }
 
@@ -220,24 +230,28 @@ struct ResultsDashboard: View {
         VStack(spacing: Spacing.xxs) {
             Image(systemName: icon)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(isPositive ? Color.pfTextSecondary : Color.statusDanger)
+                .foregroundStyle(isPositive ? Color.cockpitLabel : Color.readoutRed)
 
             Text(label)
                 .font(.system(size: 10))
-                .foregroundStyle(Color.pfTextSecondary)
+                .foregroundStyle(Color.cockpitLabel)
 
             Text(value)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundStyle(isPositive ? .primary : Color.statusDanger)
+                .foregroundStyle(isPositive ? Color.readoutGreen : Color.readoutRed)
                 .monospacedDigit()
                 .contentTransition(.numericText())
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.xs)
         .padding(.horizontal, Spacing.xxs)
-        .background(.ultraThinMaterial)
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.sm)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 0.5)
+        )
     }
 
     private func formatted(_ value: Double, decimals: Int) -> String {
@@ -268,5 +282,5 @@ struct ResultsDashboard: View {
         aircraft: .cessna172m
     )
     .padding()
-    .background(Color.pfBackground)
+    .background(Color.cockpitBackground)
 }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// CG envelope chart using Canvas for custom drawing.
+/// CG envelope chart using Canvas for custom drawing with cockpit instrument panel styling.
 /// Draws the envelope polygon, current loading point, grid lines, and axis labels.
 /// Uses @State proxy variables for animated CG dot positioning.
 struct CGEnvelopeChart: View {
@@ -19,7 +19,6 @@ struct CGEnvelopeChart: View {
     @State private var animatedCG: Double = 0
     @State private var animatedLandingWeight: Double = 0
     @State private var animatedLandingCG: Double = 0
-    @Environment(\.colorScheme) var colorScheme
 
     // MARK: - Data Bounds
 
@@ -70,20 +69,6 @@ struct CGEnvelopeChart: View {
     private let paddingLeft: CGFloat = 50
     private let paddingRight: CGFloat = 16
 
-    // MARK: - Derived Colors
-
-    private var gridColor: Color {
-        colorScheme == .dark
-            ? Color.secondary.opacity(0.2)
-            : Color.secondary.opacity(0.15)
-    }
-
-    private var pointBorderColor: Color {
-        colorScheme == .dark
-            ? Color(uiColor: .systemBackground)
-            : .white
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -93,6 +78,7 @@ struct CGEnvelopeChart: View {
                 Text("CG Envelope")
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(Color.readoutWhite)
                 Spacer()
                 AnimatedStatusBadge(
                     status: isWithinEnvelope ? .safe : .danger,
@@ -119,7 +105,7 @@ struct CGEnvelopeChart: View {
                     var path = Path()
                     path.move(to: CGPoint(x: x, y: paddingTop))
                     path.addLine(to: CGPoint(x: x, y: paddingTop + plotH))
-                    context.stroke(path, with: .color(gridColor), lineWidth: 0.5)
+                    context.stroke(path, with: .color(Color.cockpitBezel), lineWidth: 0.5)
                 }
 
                 for w in weightTicks {
@@ -127,7 +113,7 @@ struct CGEnvelopeChart: View {
                     var path = Path()
                     path.move(to: CGPoint(x: paddingLeft, y: y))
                     path.addLine(to: CGPoint(x: paddingLeft + plotW, y: y))
-                    context.stroke(path, with: .color(gridColor), lineWidth: 0.5)
+                    context.stroke(path, with: .color(Color.cockpitBezel), lineWidth: 0.5)
                 }
 
                 // ----- Envelope polygon -----
@@ -144,14 +130,14 @@ struct CGEnvelopeChart: View {
 
                 // Fill
                 let envelopeFillColor: Color = isWithinEnvelope
-                    ? Color.statusSafe.opacity(0.15)
-                    : Color.statusSafe.opacity(0.08)
+                    ? Color.readoutGreen.opacity(0.15)
+                    : Color.readoutGreen.opacity(0.08)
                 context.fill(envelopePath, with: .color(envelopeFillColor))
 
                 // Stroke
                 context.stroke(
                     envelopePath,
-                    with: .color(Color.statusSafe.opacity(0.6)),
+                    with: .color(Color.readoutGreen.opacity(0.6)),
                     lineWidth: 2
                 )
 
@@ -162,14 +148,14 @@ struct CGEnvelopeChart: View {
                 maxGrossPath.addLine(to: CGPoint(x: paddingLeft + plotW, y: maxGrossY))
                 context.stroke(
                     maxGrossPath,
-                    with: .color(Color.statusDanger.opacity(0.4)),
+                    with: .color(Color.readoutRed.opacity(0.4)),
                     style: StrokeStyle(lineWidth: 1, dash: [4, 3])
                 )
 
                 // ----- Current loading point (reads animated state) -----
                 let cx = toCGx(animatedCG)
                 let cy = toWeightY(animatedWeight)
-                let pointColor: Color = isWithinEnvelope ? .statusSafe : .statusDanger
+                let pointColor: Color = isWithinEnvelope ? .readoutGreen : .readoutRed
 
                 // Outer ring
                 let outerRing = Path(ellipseIn: CGRect(
@@ -181,11 +167,11 @@ struct CGEnvelopeChart: View {
                     lineWidth: 2
                 )
 
-                // White/background border
+                // Background border
                 let border = Path(ellipseIn: CGRect(
                     x: cx - 7, y: cy - 7, width: 14, height: 14
                 ))
-                context.fill(border, with: .color(pointBorderColor))
+                context.fill(border, with: .color(Color.cockpitSurface))
 
                 // Filled dot
                 let innerDot = Path(ellipseIn: CGRect(
@@ -198,7 +184,7 @@ struct CGEnvelopeChart: View {
                     let lx = toCGx(animatedLandingCG)
                     let ly = toWeightY(animatedLandingWeight)
                     let landingInEnvelope = isLandingWithinEnvelope ?? true
-                    let landingColor: Color = landingInEnvelope ? .statusInfo : .statusDanger
+                    let landingColor: Color = landingInEnvelope ? .readoutBlue : .readoutRed
 
                     // Trajectory line from takeoff to landing
                     var trajectoryPath = Path()
@@ -210,12 +196,13 @@ struct CGEnvelopeChart: View {
                         style: StrokeStyle(lineWidth: 2, dash: [6, 4])
                     )
 
-                    // Arrow indicator at landing point
+                    // Landing point border
                     let landingBorder = Path(ellipseIn: CGRect(
                         x: lx - 5, y: ly - 5, width: 10, height: 10
                     ))
-                    context.fill(landingBorder, with: .color(pointBorderColor))
+                    context.fill(landingBorder, with: .color(Color.cockpitSurface))
 
+                    // Landing dot
                     let landingDot = Path(ellipseIn: CGRect(
                         x: lx - 4, y: ly - 4, width: 8, height: 8
                     ))
@@ -241,7 +228,7 @@ struct CGEnvelopeChart: View {
 
                 let weightLabelText = Text("\(Int(animatedWeight)) lbs")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color.readoutWhite)
                 context.draw(
                     context.resolve(weightLabelText),
                     at: CGPoint(x: labelX, y: cy - 6),
@@ -250,7 +237,7 @@ struct CGEnvelopeChart: View {
 
                 let cgLabelText = Text("CG \(String(format: "%.1f", animatedCG))\"")
                     .font(.system(size: 10))
-                    .foregroundColor(Color.pfTextSecondary)
+                    .foregroundColor(Color.cockpitLabel)
                 context.draw(
                     context.resolve(cgLabelText),
                     at: CGPoint(x: labelX, y: cy + 6),
@@ -262,7 +249,7 @@ struct CGEnvelopeChart: View {
                     let x = toCGx(cg)
                     let label = Text("\(Int(cg))")
                         .font(.system(size: 10))
-                        .foregroundColor(Color.pfTextSecondary)
+                        .foregroundColor(Color.cockpitLabel)
                     context.draw(
                         context.resolve(label),
                         at: CGPoint(x: x, y: size.height - 10),
@@ -273,7 +260,7 @@ struct CGEnvelopeChart: View {
                 // X-axis title
                 let xTitle = Text("CG (inches aft of datum)")
                     .font(.system(size: 10))
-                    .foregroundColor(Color.pfTextSecondary)
+                    .foregroundColor(Color.cockpitLabel)
                 context.draw(
                     context.resolve(xTitle),
                     at: CGPoint(x: paddingLeft + plotW / 2, y: size.height - 1),
@@ -285,7 +272,7 @@ struct CGEnvelopeChart: View {
                     let y = toWeightY(w)
                     let label = Text(formattedWeight(w))
                         .font(.system(size: 10))
-                        .foregroundColor(Color.pfTextSecondary)
+                        .foregroundColor(Color.cockpitLabel)
                     context.draw(
                         context.resolve(label),
                         at: CGPoint(x: paddingLeft - 6, y: y),
@@ -293,26 +280,50 @@ struct CGEnvelopeChart: View {
                     )
                 }
             }
-            .frame(height: 280)
+            .frame(height: 320)
             .accessibilityLabel(
                 "CG envelope chart showing current loading at \(Int(currentWeight)) lbs and CG \(String(format: "%.1f", currentCG)) inches. \(isWithinEnvelope ? "Within" : "Outside") approved envelope."
             )
 
+            // Radial glow behind current position dot (overlay on canvas)
+            .overlay(alignment: .topLeading) {
+                GeometryReader { geometry in
+                    let plotW = geometry.size.width - paddingLeft - paddingRight
+                    let plotH = geometry.size.height - paddingTop - paddingBottom
+                    let cgSpan = maxCG - minCG
+                    let weightSpan = maxWeight - minWeight
+                    let cx = paddingLeft + CGFloat((animatedCG - minCG) / cgSpan) * plotW
+                    let cy = paddingTop + plotH - CGFloat((animatedWeight - minWeight) / weightSpan) * plotH
+                    let glowColor: Color = isWithinEnvelope ? .readoutGreen : .readoutRed
+
+                    Circle()
+                        .fill(glowColor.opacity(0.0))
+                        .frame(width: 24, height: 24)
+                        .shadow(color: glowColor.opacity(0.6), radius: 12)
+                        .position(x: cx, y: cy)
+                        .allowsHitTesting(false)
+                }
+            }
+
             // Legend row
             HStack(spacing: Spacing.md) {
-                legendItem(color: .statusSafe, text: "Takeoff")
+                legendItem(color: .readoutGreen, text: "Takeoff")
                 if landingWeight != nil {
-                    legendItem(color: .statusInfo, text: "Landing", isDashed: true)
+                    legendItem(color: .readoutBlue, text: "Landing", isDashed: true)
                 }
-                legendItem(color: .statusDanger, text: "Outside")
-                legendItem(color: .statusDanger.opacity(0.4), text: "Max Gross", isDashed: true)
+                legendItem(color: .readoutRed, text: "Outside")
+                legendItem(color: .readoutRed.opacity(0.4), text: "Max Gross", isDashed: true)
             }
-            .font(.caption2)
-            .foregroundStyle(.secondary)
+            .font(.caption)
+            .foregroundStyle(Color.cockpitLabel)
         }
         .padding(Spacing.md)
-        .background(Color.pfCard)
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+        )
         .onAppear {
             animatedWeight = currentWeight
             animatedCG = currentCG
@@ -408,5 +419,5 @@ struct CGEnvelopeChart: View {
         maxGrossWeight: 2300
     )
     .padding()
-    .background(Color.pfBackground)
+    .background(Color.cockpitBackground)
 }

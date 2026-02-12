@@ -26,9 +26,14 @@ struct SafetyAlerts: View {
     }
 }
 
-/// A single warning card with material background overlaid with status color.
+/// A single warning card with colored left accent bar,
+/// cockpit surface background, and pulsing border for danger level.
 private struct WarningCard: View {
     let warning: CalculationWarning
+
+    @State private var isPulsing = false
+
+    private var isDanger: Bool { warning.level == .danger }
 
     private var statusColor: Color {
         switch warning.level {
@@ -53,56 +58,67 @@ private struct WarningCard: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: Spacing.sm) {
-            Image(systemName: iconName)
-                .font(.body)
-                .foregroundStyle(statusColor)
-                .frame(width: 24, alignment: .center)
-                .padding(.top, 1)
+        HStack(spacing: 0) {
+            // Left accent bar
+            Rectangle()
+                .fill(statusColor)
+                .frame(width: 4)
 
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(warning.message)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
+            // Content
+            HStack(alignment: .top, spacing: Spacing.sm) {
+                Image(systemName: iconName)
+                    .font(isDanger ? .title3 : .body)
+                    .foregroundStyle(statusColor)
+                    .frame(width: 24, alignment: .center)
+                    .padding(.top, 1)
 
-                if let detail = warning.detail {
-                    Text(detail)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text(warning.message)
+                        .font(isDanger ? .body : .subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.primary)
+
+                    if let detail = warning.detail {
+                        Text(detail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let remediation = warning.remediation {
+                        Text(remediation)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.statusInfo)
+                    }
+
+                    if let ref = warning.regulatoryRef {
+                        Text(ref)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundStyle(statusColor)
+                    }
                 }
 
-                if let remediation = warning.remediation {
-                    Text(remediation)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundStyle(Color.statusInfo)
-                }
-
-                if let ref = warning.regulatoryRef {
-                    Text(ref)
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundStyle(statusColor)
-                }
+                Spacer(minLength: 0)
             }
-
-            Spacer(minLength: 0)
+            .padding(Spacing.sm)
         }
-        .padding(Spacing.sm)
-        .background {
-            ZStack {
-                RoundedRectangle(cornerRadius: CornerRadius.sm)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: CornerRadius.sm)
-                    .fill(statusColor.opacity(0.1))
-            }
-        }
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.sm))
         .overlay(
             RoundedRectangle(cornerRadius: CornerRadius.sm)
-                .strokeBorder(statusColor.opacity(0.3), lineWidth: 1)
+                .strokeBorder(
+                    statusColor.opacity(0.5),
+                    lineWidth: isDanger ? (isPulsing ? 2 : 1) : 1
+                )
         )
+        .onAppear {
+            if isDanger {
+                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    isPulsing = true
+                }
+            }
+        }
     }
 }
 
@@ -131,5 +147,5 @@ private struct WarningCard: View {
         )
     ])
     .padding()
-    .background(Color.pfBackground)
+    .background(Color.cockpitBackground)
 }

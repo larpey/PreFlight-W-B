@@ -4,8 +4,8 @@ import SwiftData
 /// Main calculator screen. Takes an Aircraft and allows the user to adjust
 /// station and fuel loads, view results, CG envelope chart, and save scenarios.
 ///
-/// Restructured into three segmented tabs (Loading / Fuel / Results) with a
-/// compact results header that is always visible at the top.
+/// Single scrollable page with collapsible sections (Loading / Fuel / Results)
+/// and a cockpit-style instrument header pinned at the top.
 struct CalculatorView: View {
     let aircraft: Aircraft
     let initialScenario: SavedScenario?
@@ -17,19 +17,15 @@ struct CalculatorView: View {
     @State private var showChart = false
     @State private var loadedScenarioId: String?
     @State private var loadedScenarioName: String?
-    @State private var selectedTab: CalculatorTab = .loading
     @State private var showShareSheet = false
     @State private var pdfURL: URL?
 
+    // Collapsible section states
+    @State private var loadingExpanded = true
+    @State private var fuelExpanded = true
+    @State private var resultsExpanded = true
+
     @Environment(\.modelContext) private var modelContext
-
-    // MARK: - Tab Enum
-
-    private enum CalculatorTab: String, CaseIterable {
-        case loading = "Loading"
-        case fuel = "Fuel"
-        case results = "Results"
-    }
 
     init(aircraft: Aircraft, initialScenario: SavedScenario? = nil) {
         self.aircraft = aircraft
@@ -86,50 +82,56 @@ struct CalculatorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Danger warnings (always visible if present)
+            // Danger warnings (pinned top)
             if !dangerWarnings.isEmpty {
                 SafetyAlerts(warnings: dangerWarnings)
                     .padding(.horizontal, Spacing.md)
                     .padding(.top, Spacing.xs)
             }
 
-            // Compact results header (always visible)
+            // Instrument header (pinned top)
             CompactResultsHeader(result: result, aircraft: aircraft)
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.xs)
 
-            // Segmented picker
-            Picker("Section", selection: $selectedTab) {
-                Text("Loading").tag(CalculatorTab.loading)
-                Text("Fuel").tag(CalculatorTab.fuel)
-                Text("Results").tag(CalculatorTab.results)
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, Spacing.md)
-            .padding(.bottom, Spacing.xs)
-            .onChange(of: selectedTab) { _, _ in
-                Haptic.selection()
-            }
-
-            // Tab content
+            // Single scrollable page with collapsible sections
             ScrollView {
                 VStack(spacing: Spacing.md) {
-                    switch selectedTab {
-                    case .loading:
+                    // LOADING section
+                    CollapsibleSection(
+                        title: "LOADING",
+                        icon: "scalemass",
+                        isExpanded: $loadingExpanded
+                    ) {
                         stationSection
-                    case .fuel:
+                    }
+
+                    // FUEL section
+                    CollapsibleSection(
+                        title: "FUEL",
+                        icon: "fuelpump",
+                        isExpanded: $fuelExpanded
+                    ) {
                         fuelSection
-                    case .results:
+                    }
+
+                    // RESULTS section
+                    CollapsibleSection(
+                        title: "RESULTS",
+                        icon: "chart.bar.doc.horizontal",
+                        isExpanded: $resultsExpanded
+                    ) {
                         resultsSection
                     }
                 }
                 .padding(.horizontal, Spacing.md)
-                .padding(.vertical, Spacing.md)
+                .padding(.vertical, Spacing.sm)
             }
         }
-        .background(Color.pfBackground)
+        .cockpitEnvironment()
         .navigationTitle(aircraft.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
@@ -139,13 +141,15 @@ struct CalculatorView: View {
                         showSaveSheet = true
                     }
                 } label: {
-                    Text(loadedScenarioId != nil ? "Saved" : "Save")
+                    Image(systemName: loadedScenarioId != nil ? "checkmark.square" : "square.and.arrow.down")
+                        .foregroundStyle(Color.readoutBlue)
                 }
 
                 NavigationLink {
                     SourcesView(aircraft: aircraft)
                 } label: {
-                    Text("Sources")
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .foregroundStyle(Color.readoutBlue)
                 }
             }
         }
@@ -160,18 +164,27 @@ struct CalculatorView: View {
         }
     }
 
-    // MARK: - Station Section (Loading tab)
+    // MARK: - Station Section (Loading)
 
     private var stationSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
-            SectionHeader(
-                title: "Loading",
-                trailingText: "Reset All",
-                trailingAction: {
+            // Reset button
+            HStack {
+                Spacer()
+                Button {
                     resetAll()
                     Haptic.medium()
+                } label: {
+                    HStack(spacing: Spacing.xxs) {
+                        Image(systemName: "arrow.counterclockwise")
+                            .font(.caption2.weight(.semibold))
+                        Text("Reset All")
+                            .font(.caption.weight(.medium))
+                    }
+                    .foregroundStyle(Color.cockpitLabel)
                 }
-            )
+                .buttonStyle(.plain)
+            }
 
             ForEach(aircraft.stations) { station in
                 StationInputRow(
@@ -182,39 +195,10 @@ struct CalculatorView: View {
         }
     }
 
-    // MARK: - Fuel Section (Fuel tab)
+    // MARK: - Fuel Section
 
     private var fuelSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
-            SectionHeader(title: "Fuel")
-
-            // Quick action buttons
-            HStack(spacing: Spacing.sm) {
-                Button("Full Tanks") {
-                    for tank in aircraft.fuelTanks {
-                        fuelGallons[tank.id] = tank.maxGallons.value
-                    }
-                    Haptic.medium()
-                }
-                .font(.caption.weight(.medium))
-                .padding(.horizontal, Spacing.sm)
-                .padding(.vertical, Spacing.xs)
-                .background(Color.statusInfo.opacity(0.12))
-                .clipShape(Capsule())
-
-                Button("Empty Tanks") {
-                    for tank in aircraft.fuelTanks {
-                        fuelGallons[tank.id] = 0
-                    }
-                    Haptic.medium()
-                }
-                .font(.caption.weight(.medium))
-                .padding(.horizontal, Spacing.sm)
-                .padding(.vertical, Spacing.xs)
-                .background(Color.pfTextSecondary.opacity(0.12))
-                .clipShape(Capsule())
-            }
-
             ForEach(aircraft.fuelTanks) { tank in
                 FuelInputRow(
                     tank: tank,
@@ -234,57 +218,110 @@ struct CalculatorView: View {
     }
 
     private var fuelBurnSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            SectionHeader(title: "Expected Fuel Burn")
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack {
+                Text("Expected Fuel Burn")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.readoutWhite)
+                Spacer()
+            }
 
-            VStack(spacing: Spacing.xs) {
-                HStack {
-                    Text("Burn")
-                        .font(.subheadline)
-                    Spacer()
-                    Text("\(formatted(fuelBurnGallons, decimals: 0)) gal")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+            // Readout row
+            HStack {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(Int(fuelBurnGallons))")
+                        .font(InstrumentFont.readoutSmall)
                         .monospacedDigit()
-                    Text("(\(formatted(fuelBurnGallons * 6.0, decimals: 0)) lbs)")
+                        .glowingReadout(color: .readoutAmber)
+                        .contentTransition(.numericText())
+
+                    Text("gal")
                         .font(.caption)
-                        .foregroundStyle(Color.pfTextSecondary)
+                        .foregroundStyle(Color.cockpitLabel)
+
+                    Text("=")
+                        .font(.caption)
+                        .foregroundStyle(Color.cockpitLabelDim)
+
+                    Text("\(Int(fuelBurnGallons * 6.0))")
+                        .font(.subheadline.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(Color.readoutWhite)
+
+                    Text("lbs")
+                        .font(.caption)
+                        .foregroundStyle(Color.cockpitLabel)
                 }
 
-                HapticSlider(
-                    value: $fuelBurnGallons,
-                    range: 0...max(1, totalFuelGallons),
-                    step: 1
-                )
+                Spacer()
 
-                if let landing = landingResult {
-                    HStack(spacing: Spacing.sm) {
-                        Label(
-                            "\(formatted(landing.landingWeight, decimals: 0)) lbs",
-                            systemImage: "airplane.arrival"
-                        )
-                        .font(.caption)
-                        .foregroundStyle(landing.isWithinWeightLimit ? Color.pfTextSecondary : Color.statusDanger)
-
-                        Spacer()
-
-                        Label(
-                            "CG \(formatted(landing.landingCG, decimals: 2))\"",
-                            systemImage: "scope"
-                        )
-                        .font(.caption)
-                        .foregroundStyle(landing.isWithinCGEnvelope ? Color.pfTextSecondary : Color.statusDanger)
+                // +/- circle buttons
+                HStack(spacing: Spacing.xs) {
+                    Button {
+                        fuelBurnGallons = max(0, fuelBurnGallons - 1)
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.caption.weight(.bold))
+                            .frame(width: Spacing.touchMinimum, height: Spacing.touchMinimum)
+                            .background(Color.cockpitBezel)
+                            .clipShape(Circle())
+                            .foregroundStyle(Color.readoutWhite)
                     }
-                    .padding(.top, Spacing.xxs)
+                    .buttonStyle(.press)
+
+                    Button {
+                        fuelBurnGallons = min(totalFuelGallons, fuelBurnGallons + 1)
+                        Haptic.light()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.caption.weight(.bold))
+                            .frame(width: Spacing.touchMinimum, height: Spacing.touchMinimum)
+                            .background(Color.cockpitBezel)
+                            .clipShape(Circle())
+                            .foregroundStyle(Color.readoutWhite)
+                    }
+                    .buttonStyle(.press)
                 }
             }
-            .padding(Spacing.sm)
-            .background(Color.pfCard)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+
+            CockpitSlider(
+                value: $fuelBurnGallons,
+                range: 0...max(1, totalFuelGallons),
+                step: 1,
+                accentColor: .readoutAmber
+            )
+
+            if let landing = landingResult {
+                HStack(spacing: Spacing.sm) {
+                    Label(
+                        "\(formatted(landing.landingWeight, decimals: 0)) lbs",
+                        systemImage: "airplane.arrival"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(landing.isWithinWeightLimit ? Color.readoutGreen : Color.readoutRed)
+
+                    Spacer()
+
+                    Label(
+                        "CG \(formatted(landing.landingCG, decimals: 2))\"",
+                        systemImage: "scope"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(landing.isWithinCGEnvelope ? Color.readoutGreen : Color.readoutRed)
+                }
+                .padding(.top, Spacing.xxs)
+            }
         }
+        .padding(Spacing.md)
+        .background(Color.cockpitSurface)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+        )
     }
 
-    // MARK: - Results Section (Results tab)
+    // MARK: - Results Section
 
     private var resultsSection: some View {
         VStack(spacing: Spacing.md) {
@@ -306,10 +343,7 @@ struct CalculatorView: View {
             // All warnings section
             let allWarnings = result.warnings + (landingResult?.warnings ?? [])
             if !allWarnings.isEmpty {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    SectionHeader(title: "Alerts")
-                    SafetyAlerts(warnings: allWarnings)
-                }
+                SafetyAlerts(warnings: allWarnings)
             }
 
             // Export PDF button
@@ -328,8 +362,13 @@ struct CalculatorView: View {
                     .font(.subheadline.weight(.medium))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Spacing.sm)
-                    .background(Color.pfCard)
+                    .foregroundStyle(Color.readoutBlue)
+                    .background(Color.cockpitSurface)
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CornerRadius.md)
+                            .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+                    )
             }
 
             // Loading breakdown table
@@ -352,15 +391,15 @@ struct CalculatorView: View {
             Text("For flight planning reference only")
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.cockpitLabel)
             Text("Always verify weight and balance calculations using your aircraft's official POH/AFM. This tool does not replace required preflight planning per FAR 91.103.")
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.cockpitLabelDim)
                 .multilineTextAlignment(.center)
         }
         .padding(Spacing.sm)
         .frame(maxWidth: .infinity)
-        .background(Color.pfCard)
+        .background(Color.cockpitSurface)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
     }
 
@@ -368,13 +407,11 @@ struct CalculatorView: View {
 
     private var breakdownSection: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
-            SectionHeader(title: "Loading Breakdown")
-
             VStack(spacing: 0) {
                 // Header row
                 breakdownHeaderRow
 
-                Divider()
+                Divider().opacity(0.3)
 
                 // Empty weight row
                 breakdownRow(
@@ -382,37 +419,37 @@ struct CalculatorView: View {
                     weight: aircraft.emptyWeight.value,
                     arm: aircraft.emptyWeightArm.value,
                     moment: aircraft.emptyWeight.value * aircraft.emptyWeightArm.value,
-                    weightColor: .primary,
-                    armColor: .primary
+                    weightColor: .readoutWhite,
+                    armColor: .readoutWhite
                 )
 
                 // Station detail rows
                 ForEach(result.stationDetails.filter({ $0.weight > 0 }), id: \.stationId) { detail in
-                    Divider().opacity(0.5)
+                    Divider().opacity(0.2)
                     breakdownRow(
                         item: detail.name,
                         weight: detail.weight,
                         arm: detail.arm,
                         moment: detail.moment,
-                        weightColor: .primary,
-                        armColor: .primary
+                        weightColor: .readoutWhite,
+                        armColor: .readoutWhite
                     )
                 }
 
                 // Fuel detail rows
                 ForEach(result.fuelDetails.filter({ $0.weight > 0 }), id: \.tankId) { detail in
-                    Divider().opacity(0.5)
+                    Divider().opacity(0.2)
                     breakdownRow(
                         item: "\(detail.name) (\(formatted(detail.gallons, decimals: 0)) gal)",
                         weight: detail.weight,
                         arm: detail.arm,
                         moment: detail.moment,
-                        weightColor: .primary,
-                        armColor: .primary
+                        weightColor: .readoutWhite,
+                        armColor: .readoutWhite
                     )
                 }
 
-                Divider()
+                Divider().opacity(0.3)
 
                 // Totals row
                 breakdownRow(
@@ -420,13 +457,17 @@ struct CalculatorView: View {
                     weight: result.totalWeight,
                     arm: result.cg,
                     moment: result.totalMoment,
-                    weightColor: result.isWithinWeightLimit ? .primary : .statusDanger,
-                    armColor: result.isWithinCGEnvelope ? .primary : .statusDanger,
+                    weightColor: result.isWithinWeightLimit ? .readoutGreen : .readoutRed,
+                    armColor: result.isWithinCGEnvelope ? .readoutGreen : .readoutRed,
                     isBold: true
                 )
             }
-            .background(Color.pfCard)
+            .background(Color.cockpitSurface)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.md)
+                    .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+            )
         }
         .padding(.bottom, Spacing.md)
     }
@@ -444,7 +485,7 @@ struct CalculatorView: View {
         }
         .font(.caption)
         .fontWeight(.medium)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(Color.cockpitLabel)
         .padding(.horizontal, Spacing.sm)
         .padding(.vertical, Spacing.xs)
     }
@@ -462,6 +503,7 @@ struct CalculatorView: View {
             Text(item)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .lineLimit(1)
+                .foregroundStyle(Color.readoutWhite)
             Text(formatted(weight, decimals: 0))
                 .foregroundStyle(weightColor)
                 .frame(width: 60, alignment: .trailing)
@@ -471,6 +513,7 @@ struct CalculatorView: View {
                 .frame(width: 50, alignment: .trailing)
                 .monospacedDigit()
             Text(formatted(moment, decimals: 0))
+                .foregroundStyle(Color.readoutWhite)
                 .frame(width: 70, alignment: .trailing)
                 .monospacedDigit()
         }

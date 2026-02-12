@@ -11,63 +11,91 @@ struct AircraftCard: View {
         return f
     }()
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            // MARK: - Aircraft Name
-            Text(aircraft.name)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.pfText)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
+    // MARK: - Computed Properties
 
-            // MARK: - Manufacturer + Model
-            Text("\(aircraft.manufacturer) \(aircraft.model)")
-                .font(.subheadline)
-                .foregroundStyle(Color.pfTextSecondary)
-                .lineLimit(1)
-
-            // MARK: - Spec Row
-            specRow
-
-            Spacer(minLength: Spacing.xxs)
-
-            // MARK: - Category Badge + Chevron
-            HStack {
-                categoryBadge
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.tertiary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard(cornerRadius: CornerRadius.md, padding: Spacing.md)
+    private var aircraftIcon: String {
+        aircraft.category == .singleEngine ? "airplane" : "airplane.departure"
     }
 
-    // MARK: - Spec Row
+    private var categoryColor: Color {
+        aircraft.category == .singleEngine ? .readoutBlue : .readoutAmber
+    }
 
-    private var specRow: some View {
-        let emptyWeight = Self.weightFormatter.string(from: NSNumber(value: aircraft.emptyWeight.value)) ?? "\(Int(aircraft.emptyWeight.value))"
-        let maxWeight = Self.weightFormatter.string(from: NSNumber(value: aircraft.maxGrossWeight.value)) ?? "\(Int(aircraft.maxGrossWeight.value))"
-        let usefulLoad = Self.weightFormatter.string(from: NSNumber(value: aircraft.usefulLoad.value)) ?? "\(Int(aircraft.usefulLoad.value))"
+    private var categoryGradient: LinearGradient {
+        LinearGradient(
+            colors: [categoryColor, categoryColor.opacity(0.3)],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
 
-        return HStack(spacing: Spacing.xxs) {
-            Text("Empty: \(emptyWeight) lbs")
-            Text("\u{2022}")
-                .foregroundStyle(.quaternary)
-            Text("Max: \(maxWeight) lbs")
-            Text("\u{2022}")
-                .foregroundStyle(.quaternary)
-            Text("Useful: \(usefulLoad) lbs")
+    // MARK: - Body
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Top accent bar: 4pt colored stripe
+            Rectangle()
+                .fill(categoryGradient)
+                .frame(height: 4)
+
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                // Row 1: Icon circle + Name/Manufacturer + Category badge
+                HStack(spacing: Spacing.sm) {
+                    // 48x48 icon circle
+                    ZStack {
+                        RoundedRectangle(cornerRadius: CornerRadius.sm)
+                            .fill(categoryColor.opacity(0.1))
+                            .frame(width: 48, height: 48)
+                        Image(systemName: aircraftIcon)
+                            .font(.system(size: 22))
+                            .foregroundStyle(categoryColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(aircraft.name)
+                            .font(.headline.weight(.bold))
+                            .foregroundStyle(Color.readoutWhite)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("\(aircraft.manufacturer) \(aircraft.model)")
+                            .font(.caption)
+                            .foregroundStyle(Color.cockpitLabel)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    categoryBadge
+                }
+
+                // Row 2: Three spec chips
+                HStack(spacing: Spacing.xs) {
+                    specChip(label: "Empty", value: formatted(aircraft.emptyWeight.value), unit: "lbs")
+                    specChip(label: "Max", value: formatted(aircraft.maxGrossWeight.value), unit: "lbs")
+                    specChip(label: "Useful", value: formatted(aircraft.usefulLoad.value), unit: "lbs")
+                }
+
+                // Row 3: CTA
+                HStack {
+                    Spacer()
+                    HStack(spacing: Spacing.xs) {
+                        Text("Calculate W&B")
+                            .font(.subheadline.weight(.medium))
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .foregroundStyle(Color.readoutBlue)
+                }
+            }
+            .padding(Spacing.md)
         }
-        .font(.caption.monospacedDigit())
-        .foregroundStyle(Color.pfTextSecondary)
-        .lineLimit(1)
-        .minimumScaleFactor(0.75)
+        .background(Color.cockpitSurface)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.md)
+                .strokeBorder(Color.cockpitBezel, lineWidth: 1)
+        )
+        .appShadow(.medium)
     }
 
     // MARK: - Category Badge
@@ -75,15 +103,46 @@ struct AircraftCard: View {
     private var categoryBadge: some View {
         let isSingleEngine = aircraft.category == .singleEngine
         let label = isSingleEngine ? "Single Engine" : "Multi Engine"
-        let color = isSingleEngine ? Color.statusInfo : Color.statusCaution
+        let color = categoryColor
 
         return Text(label)
-            .font(.caption2)
+            .font(.caption)
             .fontWeight(.semibold)
             .foregroundStyle(color)
-            .padding(.horizontal, Spacing.xs + 2)
-            .padding(.vertical, Spacing.xxs + 1)
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs)
             .background(color.opacity(0.12))
             .clipShape(Capsule())
+    }
+
+    // MARK: - Spec Chip
+
+    private func specChip(label: String, value: String, unit: String) -> some View {
+        VStack(spacing: 2) {
+            Text(label)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.cockpitLabel)
+                .textCase(.uppercase)
+                .tracking(0.5)
+            HStack(spacing: 2) {
+                Text(value)
+                    .font(.subheadline.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.readoutWhite)
+                Text(unit)
+                    .font(.caption2)
+                    .foregroundStyle(Color.cockpitLabel)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.xs)
+        .background(Color.cockpitBackground)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.xs))
+    }
+
+    // MARK: - Formatting Helper
+
+    private func formatted(_ value: Double) -> String {
+        Self.weightFormatter.string(from: NSNumber(value: value)) ?? "\(Int(value))"
     }
 }
