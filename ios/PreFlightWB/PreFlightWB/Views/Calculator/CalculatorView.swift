@@ -253,7 +253,7 @@ struct CalculatorView: View {
 
                 HapticSlider(
                     value: $fuelBurnGallons,
-                    in: 0...max(1, totalFuelGallons),
+                    range: 0...max(1, totalFuelGallons),
                     step: 1
                 )
 
