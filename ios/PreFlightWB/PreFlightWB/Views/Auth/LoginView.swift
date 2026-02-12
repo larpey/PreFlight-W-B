@@ -118,6 +118,7 @@ struct LoginView: View {
         }
         .navigationBarBackButtonHidden(false)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
     }
 
     // MARK: - Apple Sign-In Button

@@ -42,7 +42,7 @@ struct LandingView: View {
                     .padding(.bottom, Spacing.xxl - 8) // 40pt
                 }
             }
-            .background(Color.pfBackground)
+            .background(Color.cockpitBackground)
             .ignoresSafeArea(edges: .top)
         }
     }
@@ -64,7 +64,7 @@ struct LandingView: View {
 
             VStack(spacing: Spacing.sm) {
                 Spacer()
-                    .frame(height: 32)
+                    .frame(height: 64)
 
                 // Floating scale icon
                 Image(systemName: "scalemass")
@@ -112,7 +112,7 @@ struct LandingView: View {
             }
             .padding(.horizontal, Spacing.lg - 4)
         }
-        .frame(height: 260)
+        .frame(height: 320)
     }
 
     // MARK: - Disclaimer Section
